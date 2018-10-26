@@ -1,18 +1,41 @@
-#include "TEF6686/tef6686.h"
-#include <Wire.h>
-
-
-void setup()
-{
-  Wire.begin(D1, D2);
-
-  Serial.begin(115200);
-  while (!Serial);             // Leonardo: wait for serial monitor
-  Serial.println("\nI2C Scanner");
+//#include <Wire.h>
+extern "C" {
+  #include "tef6686.h"
+  //#include "TEF6686/Tuner_Proc.h"
 }
 
-void loop()
-{
+void setup() {
+  int r = 0;
+  
+  //Wire.begin(D1, D2);
+
+  //Serial.begin(115200);
+  //while (!Serial);             // Leonardo: wait for serial monitor
+  //Serial.println("\nBegin");
+
+  //Tuner_Para_Init(); // This really doesn't do anything useful.
+ // Seems to have originally been intended to load the last
+  // state from eeprom. Now all it does is sets up the "current"
+  // station as the second hard-coded preset.
+  while (r == 0) {
+    r = Tuner_Power_on(); // power on the tuner.
+    // r == 0: busy
+    // r == 1: success
+    // r == 2: does not exist
+    if (r == 2) exit(1);
+  }
+  
+  //if (!Tuner_Init()){ // load tuner initialization.
+  //  exit(1);
+  //}
+  
+  //Tuner_Turn_ON(); // this loads initial tuning to first preset.
+
+
+}
+
+void loop() {
+  /*
   byte error, address;
   int nDevices;
 
@@ -51,4 +74,5 @@ void loop()
     Serial.println("done\n");
 
   delay(5000);           // wait 5 seconds for next scan
+  */
 }
