@@ -1,13 +1,16 @@
 #ifndef TEF6686_H
 #define TEF6686_H
 
-#include <stdio.h>
+#include <Arduino.h>
+
+#include <Wire.h>
+//#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
-#include <math.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
+//#include <string.h>
+//#include <math.h>
+//#include <stdlib.h>
+//#include <unistd.h>
+//#include <pthread.h>
 
 #include "Tuner_Api.h"
 #include "Tuner_Proc.h"

@@ -20,7 +20,6 @@
  **********************************************************************/
 //-------------------------------------------------------------------------------
 #include "Tuner_Patch_Lithio_V102_p209.h"
-
 #include "tef6686.h"
 
 //-------------------------------------------------------------------------------
@@ -32,7 +31,7 @@
 /*
 Note:
 This table was pasted from GUI, so customer need to change this table for their own request
-´Ë±í´ÓGUI ÍêÈ«¿½±´, ¼ÓÉÏ×îºóÁ½ÐÐ²âÊÔ´úÂë,»áÓÐFM 102M   ÉùÒôÊä³ö
+ï¿½Ë±ï¿½ï¿½GUI ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð²ï¿½ï¿½Ô´ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½FM 102M   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 */
 static const unsigned char tuner_init_tab[] = {
 3,	0x1c,0x00,0x00,//Clear Required Initialization Control
@@ -138,31 +137,47 @@ static const unsigned char tuner_init_tab[] = {
 //-------after loading the table, FM102M will output
 };
 
-
-#ifndef SUCCESS
-#define SUCCESS 1//this define must same as return value of I2C1_WriteData()
-#endif
-
-#define TEF668x_SlaveAddr 0xC8
-
 //--------------------------------------------------------------------------------------------
-unsigned char I2C1_WriteData(unsigned char SlaveAddr,unsigned char *BufferP,unsigned char Num);
-unsigned char I2C1_ReadData(unsigned char SlaveAddr,unsigned char *BufferP,unsigned char Num);
 void TimerDelayMs (unsigned int ms);
 
 //return 1 --> IIC sucess
-unsigned char Tuner_WriteBuffer(unsigned char *buf,unsigned char len)
+unsigned char Tuner_WriteBuffer(unsigned char *buf, uint16_t len)
 {
-	return I2C1_WriteData(TEF668x_SlaveAddr,buf, len);
+  uint16_t i;
+  unsigned char r;
+  Serial.println("Send to I2C: ");
+  Wire.beginTransmission(I2C_ADDR);
+  for (i = 0; i < len; i++) {
+    Wire.write(buf[i]);
+    Serial.print(buf[i], HEX);
+    Serial.print(" ");
+  }
+  r = (Wire.endTransmission() == 0) ? 1 : 0;
+  Serial.println();
+  delay(1);
+  return r;
 }
-unsigned char Tuner_ReadBuffer(unsigned char *buf,unsigned char len)
+
+unsigned char Tuner_ReadBuffer(unsigned char *buf, uint16_t len)
 {
-	return I2C1_ReadData(TEF668x_SlaveAddr,buf,len);
+  uint16_t i;
+  Serial.println("\nRead from I2C: ");
+  Wire.requestFrom(I2C_ADDR, len);
+  if (Wire.available() == 2) {
+    for (i = 0; i < len; i++) {
+      buf[i] = Wire.read();
+      Serial.print(buf[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+    return 1;
+  }
+  return 0;
 }
 
 void Tuner_WaitMs (unsigned int ms)
 {
-	TimerDelayMs(ms);
+	delay(ms);
 }
 //--------------------------------------------------------------------------------------------
 
@@ -192,7 +207,7 @@ static int Tuner_Patch_Load(const unsigned char * pLutBytes, int size)
 
 		pLutBytes+=len;
 		
-		if(SUCCESS != (r = Tuner_WriteBuffer(buf, len+1)))
+		if(1 != (r = Tuner_WriteBuffer(buf, len+1)))
 		{
 			break;
 		}
@@ -206,7 +221,7 @@ static int Tuner_Table_Write(const unsigned char * tab)
 	if(tab[1] == INIT_FLAG_TIMER)
 	{
 		Tuner_WaitMs(tab[2]);
-		return SUCCESS;
+		return 1;
 	}
 //load patch table1	
 	else if(tab[1] == INIT_FLAG_PATCH1)
@@ -232,13 +247,9 @@ int Tuner_Init(void)
 
 	for(i=0;i<sizeof(tuner_init_tab);i+=(p[i]+1))
 	{
-		if(SUCCESS != (r=Tuner_Table_Write(p+i)))
+		if(1 != (r=Tuner_Table_Write(p+i)))
 			break;
 	}
 
 	return r;
 }
-
-
-
-

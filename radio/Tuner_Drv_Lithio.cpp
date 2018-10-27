@@ -38,9 +38,9 @@ uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, int len,...)
 	int i;
 	uint8_t buf[TEF668x_CMD_LEN_MAX];
 	uint16_t temp;
-    	va_list     vArgs;
+    va_list vArgs;
 
-    	va_start(vArgs, len);
+    va_start(vArgs, len);
 		
 	buf[0]= module;			//module,		FM/AM/APP
 	buf[1]= cmd;		//cmd,		1,2,10,... 
