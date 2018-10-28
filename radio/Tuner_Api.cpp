@@ -17,7 +17,7 @@
  * use without further testing or modification.
  **********************************************************************/
 
-#include "tef6686.h"
+#include "TEF6686.h"
 
 /* station */
 StationMemType StationRecord[MaxStationNum]; 
@@ -462,7 +462,7 @@ uint8_t Radio_Is_RDAV_Available (void)
 //level detector result
 //output: -200 ... 1200 (0.1 * dBuV) = -20 ... 120 dBuV RF input level
 //return =  dBuV
-int Radio_Get_Level(uint8_t fm)
+uint16_t Radio_Get_Level(uint8_t fm)
 {
 	int16_t level;
 	uint8_t status;
@@ -498,7 +498,7 @@ static int Radio_Get_Data(uint8_t fm, uint8_t *usn, uint8_t *wam, uint16_t *offs
 	return 0;
 }
 
-int Radio_Get_RDS_Data(uint32_t*rds_data)
+uint16_t Radio_Get_RDS_Data(uint32_t*rds_data)
 {
 	if(Is_Radio_Atomic2||Is_Radio_Lithio)
 	{
@@ -687,7 +687,7 @@ void Radio_Para_Init(void)
 	  /*init band*/
 	Radio_CurrentStation=1;
 	Radio_CurrentBand=FM1_BAND;
-	Radio_CurrentFreq=9850;//StationRecord[Radio_CurrentBand].Freq[Radio_CurrentStation];
+	Radio_CurrentFreq=10310;//StationRecord[Radio_CurrentBand].Freq[Radio_CurrentStation];
 
   Serial.print("Frequency: ");
   Serial.println(Radio_CurrentFreq);

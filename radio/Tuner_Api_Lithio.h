@@ -179,17 +179,17 @@ typedef enum{
 /*==============================================================================*/
 /* Exported functions:															*/
 /*==============================================================================*/
-int Radio_Tune_To(AR_TuningAction_t mode, uint16_t frequency);
-int FM_Tune_To(AR_TuningAction_t mode, uint16_t frequency);
-int AM_Tune_To(AR_TuningAction_t mode, uint16_t frequency);
-int APPL_Get_Operation_Status(TUNER_STATE *status);
-int APPL_Set_ReferenceClock(uint32_t frequency, uint8_t is_ext_clk);
-int APPL_Activate(void);
-int APPL_Get_Quality_Status(uint8_t fm, uint8_t *status);
-int AUDIO_Set_Mute(uint8_t mute);
-int AUDIO_Set_Volume(int vol);
-int Set_Output_Source(eAudio_Output out,eAudio_Source source);
-int AUDIO_Set_Dig_IO(eDIG_IO sig,eDIG_IO mod,eDIG_IO form,eDIG_IO oper, eDIG_IO sample);
+uint16_t Radio_Tune_To(AR_TuningAction_t mode, uint16_t frequency);
+uint16_t FM_Tune_To(AR_TuningAction_t mode, uint16_t frequency);
+uint16_t AM_Tune_To(AR_TuningAction_t mode, uint16_t frequency);
+uint16_t APPL_Get_Operation_Status(TUNER_STATE *status);
+uint16_t APPL_Set_ReferenceClock(uint32_t frequency, uint8_t is_ext_clk);
+uint16_t APPL_Activate(void);
+uint16_t APPL_Get_Quality_Status(uint8_t fm, uint8_t *status);
+uint16_t AUDIO_Set_Mute(uint8_t mute);
+uint16_t AUDIO_Set_Volume(uint16_t vol);
+uint16_t Set_Output_Source(eAudio_Output out,eAudio_Source source);
+uint16_t AUDIO_Set_Dig_IO(eDIG_IO sig,eDIG_IO mod,eDIG_IO form,eDIG_IO oper, eDIG_IO sample);
 void APPL_PowerSwitch(uint8_t OnOff);
 
 void Radio_ChannelEqualizer(uint8_t enable);

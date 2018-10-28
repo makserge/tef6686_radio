@@ -5,6 +5,6 @@
 unsigned char Tuner_WriteBuffer(unsigned char *buf,uint16_t len);
 unsigned char Tuner_ReadBuffer(unsigned char *buf, uint16_t len);
 
-int Tuner_Init(void);
+uint16_t Tuner_Init(void);
 
 #endif

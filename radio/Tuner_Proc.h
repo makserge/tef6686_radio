@@ -92,7 +92,7 @@ extern void Tuner_Update_ProgCnt(uint8_t mode);
 
 extern void Tuner_Para_Align_Mode_Proc(void);
 void Tuner_Process(void);
-int Tuner_Power_on(void); 
+uint16_t Tuner_Power_on(void); 
 void Tuner_Turn_ON(void);
 
 #endif

@@ -1,38 +1,10 @@
-
-
-/***********************************************************************//**
- * @file		audio.c
- * @purpose	This example used to test NXP Lithio/Atomic2 function
- * @version	1.0
- * @date		1. Dec. 2010
- * @author	NXP BU Automotive Car Entertainment Team 
- *---------------------------------------------------------------------
- * Software that is described herein is for illustrative purposes only
- * which provides customers with programming information regarding the
- * products. This software is supplied "AS IS" without any warranties.
- * NXP Semiconductors assume no responsibility or liability for the
- * use of the software, convey no license or title under any patent,
- * copyright, or mask work right to the product. NXP Semiconductors
- * reserve the right to make changes in the software without
- * notification. NXP Semiconductors also make no representation or
- * warranty that such application will be suitable for the specified
- * use without further testing or modification.
- **********************************************************************/
-//-------------------------------------------------------------------------------
 #include "Tuner_Patch_Lithio_V102_p209.h"
-#include "tef6686.h"
+#include "TEF6686.h"
 
-//-------------------------------------------------------------------------------
-//------------please refer to GUI--------------------------
 #define INIT_FLAG_TIMER		0xff
 #define INIT_FLAG_PATCH1	0xfe
 #define INIT_FLAG_PATCH2	0xfd
 
-/*
-Note:
-This table was pasted from GUI, so customer need to change this table for their own request
-�˱��GUI ��ȫ����, ����������в��Դ���,����FM 102M   �������
-*/
 static const unsigned char tuner_init_tab[] = {
 3,	0x1c,0x00,0x00,//Clear Required Initialization Control
 3,	0x1C,0x00,0x74,//Set Required Initialization Control(1)
@@ -126,34 +98,22 @@ static const unsigned char tuner_init_tab[] = {
 15,	0x30,0x18,0x01,0x00,0x00,0x00,0x00,0xFF,0x38,0x01,0x90,0xFF,0x38,0x03,0xE8, // AUDIO_Set_WaveGen (1, 0, 0, -200, 400, -200, 1000)
 7,	0x30,0x0D,0x01,0x00,0x21,0x00,0xE0,                  // AUDIO_Set_Output_Source (1, 33, 224)
 7,	0x30,0x0D,0x01,0x00,0x80,0x00,0xE0,                 // AUDIO_Set_Output_Source (1, 128, 224)
-
-//Device Fully Initialised: LithioDR (TEF6688), Waiting for User Event........
-
-//from here for testing -------------------------------------
-
-7,	0x20,0x01,0x01,0x00,0x01,0x27,0xD8,    // FM_Tune_To (1, 1, 10200)
-5,	0x30,0x0A,0x01,0x00,0x14,			// AUDIO_Set_Volume 20dB
-
-//-------after loading the table, FM102M will output
 };
-
-//--------------------------------------------------------------------------------------------
-void TimerDelayMs (unsigned int ms);
 
 //return 1 --> IIC sucess
 unsigned char Tuner_WriteBuffer(unsigned char *buf, uint16_t len)
 {
   uint16_t i;
   unsigned char r;
-  Serial.println("Send to I2C: ");
+ // Serial.println("Send to I2C: ");
   Wire.beginTransmission(I2C_ADDR);
   for (i = 0; i < len; i++) {
     Wire.write(buf[i]);
-    Serial.print(buf[i], HEX);
-    Serial.print(" ");
+  //  Serial.print(buf[i], HEX);
+   // Serial.print(" ");
   }
   r = (Wire.endTransmission() == 0) ? 1 : 0;
-  Serial.println();
+ // Serial.println();
   delay(1);
   return r;
 }
@@ -161,21 +121,21 @@ unsigned char Tuner_WriteBuffer(unsigned char *buf, uint16_t len)
 unsigned char Tuner_ReadBuffer(unsigned char *buf, uint16_t len)
 {
   uint16_t i;
-  Serial.println("\nRead from I2C: ");
+  //Serial.println("\nRead from I2C: ");
   Wire.requestFrom(I2C_ADDR, len);
-  if (Wire.available() == 2) {
+  if (Wire.available() == len) {
     for (i = 0; i < len; i++) {
       buf[i] = Wire.read();
-      Serial.print(buf[i], HEX);
-      Serial.print(" ");
+  //    Serial.print(buf[i], HEX);
+  //    Serial.print(" ");
     }
-    Serial.println();
+  //  Serial.println();
     return 1;
   }
   return 0;
 }
 
-void Tuner_WaitMs (unsigned int ms)
+void Tuner_WaitMs (uint16_t ms)
 {
 	delay(ms);
 }
@@ -189,11 +149,11 @@ The transmission example below shows a data content of 12 words for every data t
 The data stream can be split in any desired length on (2-byte) word boundaries with every data transmission starting with hex value 1B
 */
 #define TEF665X_SPLIT_SIZE		24
-static int Tuner_Patch_Load(const unsigned char * pLutBytes, int size)
+static uint16_t Tuner_Patch_Load(const unsigned char * pLutBytes, uint16_t size)
 {
 	unsigned char buf[TEF665X_SPLIT_SIZE+1];
-	int i,len;
-	int r;
+	uint16_t i,len;
+	uint16_t r;
 
 	buf[0] = 0x1b;
 
@@ -215,7 +175,7 @@ static int Tuner_Patch_Load(const unsigned char * pLutBytes, int size)
 
 	return r;
 }
-static int Tuner_Table_Write(const unsigned char * tab)
+static uint16_t Tuner_Table_Write(const unsigned char * tab)
 {
 //use a timer delay in init table
 	if(tab[1] == INIT_FLAG_TIMER)
@@ -239,10 +199,10 @@ static int Tuner_Table_Write(const unsigned char * tab)
 
 
 //return 1 = sucess
-int Tuner_Init(void)
+uint16_t Tuner_Init(void)
 {
-	int i;
-	int r;
+	uint16_t i;
+	uint16_t r;
 	const unsigned char *p = tuner_init_tab;
 
 	for(i=0;i<sizeof(tuner_init_tab);i+=(p[i]+1))

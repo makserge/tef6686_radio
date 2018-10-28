@@ -1,4 +1,4 @@
-#include "tef6686.h"
+#include "TEF6686.h"
 #include <stdarg.h>
 
 /* -----------------------------------------------------------------------------
@@ -9,8 +9,6 @@
 #define Low_16bto8b(a) 	((uint8_t)(a )) 
 
 #define Convert8bto16b(a)	((uint16_t)(((uint16_t)(*(a))) << 8 |((uint16_t)(*(a+1)))))
-
-#define TAB_NUM(tab)	(sizeof(tab)/sizeof(tab[0]))
 
 /* -----------------------------------------------------------------------------
  * Internal Prototypes:
@@ -28,14 +26,14 @@
 typedef struct{
 	TEF668x_MODULE module;
 	uint8_t cmd;
-	int len;	//buffer size of all data
+	uint16_t len;	//buffer size of all data
 }TEF668x_CMD_LEN;
 */
 #define TEF668x_CMD_LEN_MAX	20
 
-uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, int len,...)
+uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, uint16_t len,...)
 {
-	int i;
+	uint16_t i;
 	uint8_t buf[TEF668x_CMD_LEN_MAX];
 	uint16_t temp;
     va_list vArgs;
@@ -49,7 +47,7 @@ uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, int len,...)
 //fill buffer with 16bits one by one
 	for(i=3;i<len;i++)
 	{
-		temp = va_arg(vArgs,int);	//the size only int valid for compile
+		temp = va_arg(vArgs,int);	//the size only uint16_t valid for compile
 		
 		buf[i++]=High_16bto8b(temp);		
 		buf[i]=Low_16bto8b(temp);		
@@ -61,7 +59,7 @@ uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, int len,...)
 }
 
 
-static int devTEF668x_Get_Cmd(TEF668x_MODULE module, uint8_t cmd, uint8_t *receive,int len)
+static uint16_t devTEF668x_Get_Cmd(TEF668x_MODULE module, uint8_t cmd, uint8_t *receive,uint16_t len)
 {
 	uint8_t buf[3];
 
@@ -136,7 +134,7 @@ index
 	1000 � 20000 [* 1 us] = 1 � 20 ms
 	2000 = 2 ms (default)
 */
-int devTEF668x_Radio_Set_Tune_Options(uint8_t fm,uint16_t afu_bw_mode,uint16_t afu_bandwidth,uint16_t afu_mute_time,uint16_t afu_sample_time)
+uint16_t devTEF668x_Radio_Set_Tune_Options(uint8_t fm,uint16_t afu_bw_mode,uint16_t afu_bandwidth,uint16_t afu_mute_time,uint16_t afu_sample_time)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Tune_Options, 
@@ -174,7 +172,7 @@ index
 	500 � 1500 [*0.1 %] = 50 � 150 % relative adjacent channel sensitivity
 	1000 = 100 % (default)
 */
-int devTEF668x_Radio_Set_Bandwidth(uint8_t fm,uint16_t mode,uint16_t bandwidth,uint16_t control_sensitivity,uint16_t low_level_sensitivity)
+uint16_t devTEF668x_Radio_Set_Bandwidth(uint8_t fm,uint16_t mode,uint16_t bandwidth,uint16_t control_sensitivity,uint16_t low_level_sensitivity)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Bandwidth,
@@ -201,7 +199,7 @@ index
 	1 = AGC step extension from control output (GPIO feature ��AGC��)
 	AM reserved
 */
-int devTEF668x_Radio_Set_RFAGC(uint8_t fm,uint16_t start,uint16_t extension)
+uint16_t devTEF668x_Radio_Set_RFAGC(uint8_t fm,uint16_t start,uint16_t extension)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_RFAGC, 
@@ -220,7 +218,7 @@ cmd 12 Set_Antenna attenuation
 	attenuation (6 dB step size)
 	0 = no attenuation (default)
 */
-int devTEF668x_Radio_Set_Antenna(uint8_t fm,uint16_t attenuation)
+uint16_t devTEF668x_Radio_Set_Antenna(uint8_t fm,uint16_t attenuation)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Antenna, 
@@ -239,7 +237,7 @@ index
 	0 = off (default)
 	1 = on
 */
-int devTEF668x_Radio_Set_MphSuppression(uint8_t fm,uint16_t mode)
+uint16_t devTEF668x_Radio_Set_MphSuppression(uint8_t fm,uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_MphSuppression,
@@ -327,7 +325,7 @@ index
 	500 � 1500 [*0.1 %] = 50 � 150 % relative trigger sensitivity
 	1000 = 100 % (default)
 */
-int devTEF668x_Radio_Set_NoiseBlanker(uint8_t fm,uint16_t mode,uint16_t sensitivity)
+uint16_t devTEF668x_Radio_Set_NoiseBlanker(uint8_t fm,uint16_t mode,uint16_t sensitivity)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_NoiseBlanker, 
@@ -350,7 +348,7 @@ index
 	500 � 1500 [*0.1 %] = 50 � 150 % relative trigger sensitivity
 	1000 = 100 % (default)
 */
-int devTEF668x_Radio_Set_NoiseBlanker_Audio(uint8_t fm,uint16_t mode,uint16_t sensitivity)
+uint16_t devTEF668x_Radio_Set_NoiseBlanker_Audio(uint8_t fm,uint16_t mode,uint16_t sensitivity)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_NoiseBlanker_Audio, 
@@ -368,7 +366,7 @@ index
 	0 = off (default)
 	1 = on
 */
-int devTEF668x_Radio_Set_DigitalRadio(uint8_t fm,uint16_t mode)
+uint16_t devTEF668x_Radio_Set_DigitalRadio(uint8_t fm,uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_DigitalRadio, 
@@ -387,7 +385,7 @@ index
 	500 = 50 ��s deemphasis (default)
 	750 = 75 ��s deemphasis
 */
-int devTEF668x_Radio_Set_Deemphasis(uint8_t fm,uint16_t timeconstant)
+uint16_t devTEF668x_Radio_Set_Deemphasis(uint8_t fm,uint16_t timeconstant)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Deemphasis, 
@@ -435,7 +433,7 @@ index 1 step1
 	-60 � 0 (*0.1 dB) = -6 � 0 dB
 	-60 = -6 dB (default)
 */
-int devTEF668x_Radio_Set_LevelStep(uint8_t fm,int step1,int step2,int step3,int step4,int step5,int step6,int step7)
+uint16_t devTEF668x_Radio_Set_LevelStep(uint8_t fm,uint16_t step1,uint16_t step2,uint16_t step3,uint16_t step4,uint16_t step5,uint16_t step6,uint16_t step7)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_LevelStep, 
@@ -453,7 +451,7 @@ cmd 39 Set_LevelOffset offset
 	-480 � +150 (*0.1 dB) = -48 � +15 dB
 	0 = 0 dB (default)
 */
-int devTEF668x_Radio_Set_LevelOffset(uint8_t fm,int offset)
+uint16_t devTEF668x_Radio_Set_LevelOffset(uint8_t fm,uint16_t offset)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_LevelOffset, 
@@ -486,7 +484,7 @@ cmd 40 Set_Softmute_Time slow_attack, slow_decay, fast_attack, fast_decay
 	20 � 5000 ( *0.1 ms) = 2 ms � 500 ms fast attack time
 	20 = 2 ms (FM default) / 500 = 50 ms (AM default)
 */
-int devTEF668x_Radio_Set_Softmute_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay)
+uint16_t devTEF668x_Radio_Set_Softmute_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Softmute_Time, 
@@ -512,7 +510,7 @@ cmd 42 Set_Softmute_Level mode, start, slope
 	60 �K 300 [*0.1 dB] = control over level range of 6 dB �K 30 dB
 	220 = 22 dB (default) / 250 = 25 dB (default)
 */
-int devTEF668x_Radio_Set_Softmute_Level(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Softmute_Level(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Softmute_Level, 
@@ -542,7 +540,7 @@ cmd 43 Set_Softmute_Noise mode, start, slope
 	100 � 1000 [*0.1 %] = control over range of 10� 100% of USN detector
 	1000 = 100% (default)
 */
-int devTEF668x_Radio_Set_Softmute_Noise(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Softmute_Noise(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Softmute_Noise, 
@@ -572,7 +570,7 @@ cmd 44 Set_Softmute_Mph mode, start, slope
 	100 � 1000 [*0.1 %] = control over range of 10� 100% of WAM detector
 	1000 = 100% (default)
 */
-int devTEF668x_Radio_Set_Softmute_Mph(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Softmute_Mph(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Softmute_Mph,
@@ -597,7 +595,7 @@ index
 	200 = 20 dB (FM default) / 250 = 25 dB (AM default)
 
 */
-int devTEF668x_Radio_Set_Softmute_Max(uint8_t fm,uint16_t mode,uint16_t limit)
+uint16_t devTEF668x_Radio_Set_Softmute_Max(uint8_t fm,uint16_t mode,uint16_t limit)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Softmute_Max,
@@ -632,7 +630,7 @@ index
 	20 = 2 ms (FM default) / 500 = 50 ms (AM default)
 
 */
-int devTEF668x_Radio_Set_Highcut_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay)
+uint16_t devTEF668x_Radio_Set_Highcut_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Highcut_Time,
@@ -667,7 +665,7 @@ index
 	(percentage of the linear control range from _Min limit to _Max limit)
 
 */
-int devTEF668x_Radio_Set_Highcut_Mod(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope,uint16_t shift)
+uint16_t devTEF668x_Radio_Set_Highcut_Mod(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope,uint16_t shift)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Highcut_Mod,
@@ -699,7 +697,7 @@ index
 	300 = 30 dB (FM default) / 200 = 20 dB (AM default)
 
 */
-int devTEF668x_Radio_Set_Highcut_Level(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Highcut_Level(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Highcut_Level,
@@ -732,7 +730,7 @@ index
 	300 = 30% (default)
 
 */
-int devTEF668x_Radio_Set_Highcut_Noise(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Highcut_Noise(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Highcut_Noise,
@@ -765,7 +763,7 @@ index
 	300 = 30% (default)
 
 */
-int devTEF668x_Radio_Set_Highcut_Mph(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Highcut_Mph(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Highcut_Mph,
@@ -792,7 +790,7 @@ index
 	1800 = 1.8 kHz (default)
 
 */
-int devTEF668x_Radio_Set_Highcut_Max(uint8_t fm,uint16_t mode,uint16_t limit)
+uint16_t devTEF668x_Radio_Set_Highcut_Max(uint8_t fm,uint16_t mode,uint16_t limit)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Highcut_Max,
@@ -817,7 +815,7 @@ index
 	2700 � 15000 [*1 Hz] = 2.7 � 15 kHz -3 dB attenuation fo
 
 */
-int devTEF668x_Radio_Set_Highcut_Min(uint8_t fm,uint16_t mode,uint16_t limit)
+uint16_t devTEF668x_Radio_Set_Highcut_Min(uint8_t fm,uint16_t mode,uint16_t limit)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Highcut_Min,
@@ -842,7 +840,7 @@ index
 	20 = 20 Hz (default)
 
 */
-int devTEF668x_Radio_Set_Lowcut_Min(uint8_t fm,uint16_t mode,uint16_t limit)
+uint16_t devTEF668x_Radio_Set_Lowcut_Min(uint8_t fm,uint16_t mode,uint16_t limit)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Lowcut_Min,
@@ -877,7 +875,7 @@ index
 	80 = 8 ms
 
 */
-int devTEF668x_Radio_Set_Stereo_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay)
+uint16_t devTEF668x_Radio_Set_Stereo_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Stereo_Time,
@@ -913,7 +911,7 @@ index
 	(percentage of the linear control range from _Min limit to �mono�)
 
 */
-int devTEF668x_Radio_Set_Stereo_Mod(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope,uint16_t shift)
+uint16_t devTEF668x_Radio_Set_Stereo_Mod(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope,uint16_t shift)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Stereo_Mod,
@@ -945,7 +943,7 @@ index
 	240 = 24 dB (default)
 
 */
-int devTEF668x_Radio_Set_Stereo_Level(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Stereo_Level(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Stereo_Level,
@@ -977,7 +975,7 @@ index
 	200 = 20% (default)
 
 */
-int devTEF668x_Radio_Set_Stereo_Noise(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Stereo_Noise(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Stereo_Noise,
@@ -1007,7 +1005,7 @@ index
 	200 = 20% (default)
 
 */
-int devTEF668x_Radio_Set_Stereo_Mph(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
+uint16_t devTEF668x_Radio_Set_Stereo_Mph(uint8_t fm,uint16_t mode,uint16_t start,uint16_t slope)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Stereo_Mph,
@@ -1027,7 +1025,7 @@ index
 	1 = on; maximum dynamic control is 0 dB channel sep, i.e. mono (default)
 
 */
-int devTEF668x_Radio_Set_Stereo_Max(uint8_t fm,uint16_t mode)
+uint16_t devTEF668x_Radio_Set_Stereo_Max(uint8_t fm,uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Stereo_Max,
@@ -1053,7 +1051,7 @@ index
 	400 = 40 dB (default)
 
 */
-int devTEF668x_Radio_Set_Stereo_Min(uint8_t fm,uint16_t mode,uint16_t limit)
+uint16_t devTEF668x_Radio_Set_Stereo_Min(uint8_t fm,uint16_t mode,uint16_t limit)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_Stereo_Min,
@@ -1072,7 +1070,7 @@ index
 	-120 � +60 [*0.1 dB] = -12 � +6 dB analog radio signal gain
 	0 = 0 dB (default)
 */
-int devTEF668x_Radio_Set_Scaler(uint8_t fm,uint16_t gain)
+uint16_t devTEF668x_Radio_Set_Scaler(uint8_t fm,uint16_t gain)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Scaler,
@@ -1107,7 +1105,7 @@ index
 	2 = data-available status output; active low (GPIO feature �DAVN�)
 	4 = legacy 2-wire demodulator data and clock output (�RDDA� and �RDCL�)
 */
-int devTEF668x_Radio_Set_RDS(uint8_t fm,uint16_t mode,uint16_t restart,uint16_t interfac)
+uint16_t devTEF668x_Radio_Set_RDS(uint8_t fm,uint16_t mode,uint16_t restart,uint16_t interfac)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Set_RDS,
@@ -1132,7 +1130,7 @@ index
 	0 = no pin interface (default)
 	2 = quality status output; active low (�QSI�)
 */
-int devTEF668x_Radio_Set_QualityStatus(uint8_t fm,uint16_t mode,uint16_t interfac)
+uint16_t devTEF668x_Radio_Set_QualityStatus(uint8_t fm,uint16_t mode,uint16_t interfac)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_QualityStatus,
@@ -1168,7 +1166,7 @@ index
 	-180 � +60 [*0.1 dB] = -18 � +6 dB digital radio signal gain
 	0 = 0 dB (default)
 */
-int devTEF668x_Radio_Set_DR_Blend(uint8_t fm,uint16_t mode,uint16_t in_time,uint16_t out_time,uint16_t gain)
+uint16_t devTEF668x_Radio_Set_DR_Blend(uint8_t fm,uint16_t mode,uint16_t in_time,uint16_t out_time,uint16_t gain)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_DR_Blend,
@@ -1189,7 +1187,7 @@ index
 	6500 = 650 kHz (not for normal application use)
 	6750 = 675 kHz (not for normal application use)
 */
-int devTEF668x_Radio_Set_DR_Options(uint8_t fm,uint16_t samplerate)
+uint16_t devTEF668x_Radio_Set_DR_Options(uint8_t fm,uint16_t samplerate)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_DR_Options,
@@ -1209,7 +1207,7 @@ index
 	1 = DAC_L : FM MPX wideband (DARC) signal / DAC_R : mono audio
 	2 = DAC_L : digital radio left channel / DAC_R : analog radio left channel
 */
-int devTEF668x_Radio_Set_Specials(uint8_t fm,uint16_t ana_out)
+uint16_t devTEF668x_Radio_Set_Specials(uint8_t fm,uint16_t ana_out)
 {
 	return devTEF668x_Set_Cmd(fm ? TEF665X_MODULE_FM: TEF665X_MODULE_AM,
 			TEF665X_Cmd_Set_Specials,
@@ -1269,7 +1267,7 @@ index
 	32 = I�S digital audio input (IIS_SD_0)
 	240 = sine wave generator
 */
-int devTEF668x_Audio_Set_Input(uint16_t source)
+uint16_t devTEF668x_Audio_Set_Input(uint16_t source)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
 			TEF665X_Cmd_Set_Input, 
@@ -1318,7 +1316,7 @@ index
 	0 = off (power down)
 	1 = output enabled (default)
 */
-int devTEF668x_Audio_Set_Ana_Out(uint16_t signal,uint16_t mode)
+uint16_t devTEF668x_Audio_Set_Ana_Out(uint16_t signal,uint16_t mode)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
 			TEF665X_Cmd_Set_Ana_Out, 
@@ -1382,7 +1380,7 @@ index
 	-120 � +60 [*0.1 dB] = -12 � +6 dB external source signal gain
 	0 = 0 dB (default)
 */
-int devTEF668x_Audio_Set_Input_Scaler(uint16_t source,uint16_t gain)
+uint16_t devTEF668x_Audio_Set_Input_Scaler(uint16_t source,uint16_t gain)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
 			TEF665X_Cmd_Set_Input_Scaler, 
@@ -1431,7 +1429,7 @@ index
 	10 � 20000 (*1 Hz) = 10 Hz � 20 kHz
 	1000 = 1 kHz (default)
 */
-int devTEF668x_Audio_Set_WaveGen(uint16_t mode,uint16_t offset,uint16_t amplitude1,uint16_t frequency1,uint16_t amplitude2,uint16_t frequency2)
+uint16_t devTEF668x_Audio_Set_WaveGen(uint16_t mode,uint16_t offset,uint16_t amplitude1,uint16_t frequency1,uint16_t amplitude2,uint16_t frequency2)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_AUDIO,
 			TEF665X_Cmd_Set_WaveGen, 
@@ -1487,7 +1485,7 @@ index
 	261 = output RDCL (FM : see cmd 81 �RDDA, RDCL legacy option�)
 	262 = output AGC (FM : see cmd 11 �AGC step extension�)
 */
-int devTEF668x_APPL_Set_GPIO(uint16_t pin,uint16_t module,uint16_t feature)
+uint16_t devTEF668x_APPL_Set_GPIO(uint16_t pin,uint16_t module,uint16_t feature)
 {
 	return devTEF668x_Set_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Set_GPIO, 
@@ -1592,7 +1590,7 @@ index
 uint16_t devTEF668x_Radio_Get_Quality_Status (uint8_t fm,uint8_t *status)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Operation_Status,
@@ -1607,7 +1605,7 @@ uint16_t devTEF668x_Radio_Get_Quality_Status (uint8_t fm,uint8_t *status)
 uint8_t devTEF668x_Radio_Is_AF_Update_Available (void)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,TEF665X_Cmd_Get_Operation_Status,
 			buf,sizeof(buf));
@@ -1621,7 +1619,7 @@ uint8_t devTEF668x_Radio_Is_AF_Update_Available (void)
 uint8_t devTEF668x_Radio_Is_RDAV_Available (void)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,TEF665X_Cmd_Get_RDS_Status,
 			buf,sizeof(buf));
@@ -1636,7 +1634,7 @@ uint8_t devTEF668x_Radio_Is_RDAV_Available (void)
 uint16_t devTEF668x_Radio_Get_Quality_Level (uint8_t fm,uint8_t *status,int16_t *level)
 {
 	uint8_t buf[4];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Quality_Data,
@@ -1667,7 +1665,7 @@ modulation	 = FM 0 � 1000 [*0.1 %] = 0 � 100% modulation = 0 � 75 kHz FM d
 uint16_t devTEF668x_Radio_Get_Quality_Data (uint8_t fm,uint8_t *usn,uint8_t *wam,uint16_t *offset)
 {
 	uint8_t buf[14];
-	int r;
+	uint16_t r;
 	int16_t temp;
 	
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
@@ -1742,10 +1740,10 @@ index
 	3 : uncorrectable error; no data correction possible
 	[7:0] = reserved
 */
-int devTEF668x_Radio_Get_RDS_Status(uint8_t fm,uint16_t *status)
+uint16_t devTEF668x_Radio_Get_RDS_Status(uint8_t fm,uint16_t *status)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Get_RDS_Status,
@@ -1757,11 +1755,11 @@ int devTEF668x_Radio_Get_RDS_Status(uint8_t fm,uint16_t *status)
 
 	return r;
 }
-int devTEF668x_Radio_Get_RDS_Data (uint8_t fm,uint16_t *status,uint16_t *A_block,uint16_t *B_block,uint16_t *C_block,uint16_t *D_block,
+uint8_t devTEF668x_Radio_Get_RDS_Data (uint8_t fm,uint16_t *status,uint16_t *A_block,uint16_t *B_block,uint16_t *C_block,uint16_t *D_block,
 	uint16_t *dec_error)
 {
 	uint8_t buf[12];
-	int r;
+	uint8_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Get_RDS_Data,
@@ -1781,7 +1779,7 @@ int devTEF668x_Radio_Get_RDS_Data (uint8_t fm,uint16_t *status,uint16_t *A_block
 uint16_t devTEF668x_Radio_Get_RDS_DataRaw (uint8_t fm,uint16_t *status,uint32_t *raw_data)
 {
 	uint8_t buf[6];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_FM,
 			TEF665X_Cmd_Get_RDS_Data,
@@ -1811,10 +1809,10 @@ index
 	FM 0 � 60 (0.1* dB) = 0 � 6 dB attenuation
 	AM 0 � 180 (0.1* dB) = 0 � 18 dB attenuation
 */
-int devTEF668x_Radio_Get_AGC(uint8_t fm,uint16_t *input_att,uint16_t *feedback_att)
+uint16_t devTEF668x_Radio_Get_AGC(uint8_t fm,uint16_t *input_att,uint16_t *feedback_att)
 {
 	uint8_t buf[4];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_AGC,
@@ -1843,7 +1841,7 @@ index
 uint16_t devTEF668x_Radio_Get_Signal_Status(uint8_t fm,uint16_t *status)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Signal_Status,
@@ -1867,10 +1865,10 @@ index
 3 stereo FM Stereo blend control state
 	0 � 1000 (*0.1%) = 0 % minimum � 100 % max. stereo att. (= mono)
 */
-int devTEF668x_Radio_Get_Processing_Status(uint8_t fm,uint16_t *softmute,uint16_t *highcut,uint16_t *stereo)
+uint16_t devTEF668x_Radio_Get_Processing_Status(uint8_t fm,uint16_t *softmute,uint16_t *highcut,uint16_t *stereo)
 {
 	uint8_t buf[6];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Processing_Status,
@@ -1896,10 +1894,10 @@ index
 	6500 = 650 kHz
 	6750 = 675 kHz
 */
-int devTEF668x_Radio_Get_Interface_Status(uint8_t fm,uint16_t *samplerate)
+uint16_t devTEF668x_Radio_Get_Interface_Status(uint8_t fm,uint16_t *samplerate)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(fm ? TEF665X_MODULE_FM : TEF665X_MODULE_AM,
 			TEF665X_Cmd_Get_Interface_Status,
@@ -1927,7 +1925,7 @@ index
 uint16_t devTEF668x_APPL_Get_Operation_Status(uint8_t *status)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_Operation_Status,
@@ -1951,10 +1949,10 @@ index
 	[1] = input state of GPIO_1 (no input use suggested for TEF668x)
 	[0] = input state of GPIO_0 (0 = low, 1 = high)
 */
-int devTEF668x_APPL_Get_GPIO_Status(uint16_t *status)
+uint16_t devTEF668x_APPL_Get_GPIO_Status(uint16_t *status)
 {
 	uint8_t buf[2];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_GPIO_Status,
@@ -1994,10 +1992,10 @@ index
 	[ 7:0 ] minor number
 	1 = �.01�
 */
-int devTEF668x_APPL_Get_Identification(uint16_t *device,uint16_t *hw_version,uint16_t *sw_version)
+uint16_t devTEF668x_APPL_Get_Identification(uint16_t *device,uint16_t *hw_version,uint16_t *sw_version)
 {
 	uint8_t buf[6];
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_Operation_Status,
@@ -2037,9 +2035,9 @@ index
 7 parameter5 fifth parameter
 	0 � 65535 = value of the fifth parameter (when available)
 */
-int devTEF668x_APPL_Get_LastWrite(uint8_t *buf,int len)
+uint16_t devTEF668x_APPL_Get_LastWrite(uint8_t *buf,uint16_t len)
 {
-	int r;
+	uint16_t r;
 	
 	r = devTEF668x_Get_Cmd(TEF665X_MODULE_APPL,
 			TEF665X_Cmd_Get_LastWrite,

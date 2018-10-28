@@ -16,7 +16,7 @@
  * warranty that such application will be suitable for the specified
  * use without further testing or modification.
  **********************************************************************/
-#include "tef6686.h"
+#include "TEF6686.h"
 
 
 /*rewrite freqency waite timer*/
@@ -420,7 +420,7 @@ void Tuner_Scan_Sub(void)
 	}
 }
 
-static int TunerSmeter[7];//store 6 smeter values used for auto store stations. [0] not used!!
+static uint16_t TunerSmeter[7];//store 6 smeter values used for auto store stations. [0] not used!!
 unsigned char  TunerMemNum;
 #define AutoStore_TotalNum	6
 /*=============================================
@@ -431,7 +431,7 @@ static void Tuner_Smeter_Store(void)
 {
 
 	unsigned char i,j=0;
-	int level,TempValue;
+	uint16_t level,TempValue;
 	unsigned char  CurrentBand=Radio_GetCurrentBand();
 	
 	level = Radio_Get_Level(Radio_IsFMBand());
@@ -794,11 +794,11 @@ static TUNER_STATE Tuner_State = eTuner_Power_on;
 //return 0 if in busy
 //return 1 if i2c active
 //return 2 if device not exist
-int Tuner_Power_on(void)
+uint16_t Tuner_Power_on(void)
 {
-	static  int PowerOn_Counter=0;
+	static uint16_t PowerOn_Counter=0;
 	TUNER_STATE status;
-	int r;
+	uint16_t r;
 
 	//if(TimerHasExpired(&TunerWaitTimer))//Alternatively Wait radio supply power settling time + 5 ms.
 	{
@@ -827,7 +827,7 @@ int Tuner_Power_on(void)
 
 void Tuner_Process(void)
 {
-	int r;
+	uint16_t r;
 	
 	switch(Tuner_State)
 	{

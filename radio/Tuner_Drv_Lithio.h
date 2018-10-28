@@ -254,7 +254,7 @@ typedef enum
 
 
 
-uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, int len,...);
+uint16_t devTEF668x_Set_Cmd(TEF668x_MODULE module, uint8_t cmd, uint16_t len,...);
 
 uint16_t devTEF668x_Radio_Tune_To (uint8_t fm,uint16_t mode,uint16_t frequency );
 uint16_t devTEF668x_Radio_Get_Quality_Status (uint8_t fm,uint8_t *status);
@@ -272,7 +272,8 @@ uint16_t devTEF668x_Audio_Set_Output_Source(uint16_t signal,uint16_t source);
 uint16_t devTEF668x_APPL_Set_OperationMode(uint16_t mode);
 uint8_t devTEF668x_Radio_Is_AF_Update_Available (void);
 uint8_t devTEF668x_Radio_Is_RDAV_Available (void);
-uint16_t devTEF668x_Radio_Get_RDS_DataRaw (uint8_t fm,uint16_t *status,uint32_t *raw_data);
+uint8_t devTEF668x_Radio_Get_RDS_Data(uint8_t fm,uint16_t *status,uint16_t *A_block,uint16_t *B_block,uint16_t *C_block,uint16_t *D_block, uint16_t *dec_error);
+uint16_t devTEF668x_Radio_Get_RDS_DataRaw(uint8_t fm,uint16_t *status,uint32_t *raw_data);
 uint16_t devTEF668x_Radio_Set_ChannelEqualizer(uint8_t fm,uint16_t mode);
 uint16_t devTEF668x_Radio_Set_StereoImprovement(uint8_t fm,uint16_t mode);
 uint16_t devTEF668x_Radio_Set_StHiBlend_Time(uint8_t fm,uint16_t slow_attack,uint16_t slow_decay,uint16_t fast_attack,uint16_t fast_decay);

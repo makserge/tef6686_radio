@@ -233,9 +233,9 @@ void Radio_StoreStationRecord(uint8_t Band);
 void Radio_SetSeekSenLevel(uint8_t Lev);
 void Radio_StoreStation(uint8_t Band,uint8_t Station);
 uint8_t Radio_CheckStereo(void);
-int Radio_Get_Level(uint8_t fm);
+uint16_t Radio_Get_Level(uint8_t fm);
 uint8_t Radio_Is_AF_Update_Available (void);
 uint8_t Radio_Is_RDAV_Available (void);
-int Radio_Get_RDS_Data(uint32_t*rds_data);
+uint16_t Radio_Get_RDS_Data(uint32_t*rds_data);
 
 #endif

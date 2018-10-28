@@ -1,4 +1,4 @@
-#include "tef6686.h"
+#include "TEF6686.h"
 
 
 /* -----------------------------------------------------------------------------
@@ -13,19 +13,19 @@
 /* Function Calls for Control Commands and Information Requests */
 /****************************************************************/
 //--------------------------------------------------------------------------------
-int Radio_Tune_To(AR_TuningAction_t mode, uint16_t frequency)
+uint16_t Radio_Tune_To(AR_TuningAction_t mode, uint16_t frequency)
 {
-	int status;
+	uint16_t status;
 
 	status = devTEF668x_Radio_Tune_To(TEF665X_Is_FM_Freq(frequency), (uint16_t)mode, frequency);
 
 	return status;
 }
 
-int APPL_Get_Operation_Status(TUNER_STATE *status)
+uint16_t APPL_Get_Operation_Status(TUNER_STATE *status)
 {
 	uint8_t data;
-	int r;
+	uint16_t r;
 
 	if(1 ==(r = devTEF668x_APPL_Get_Operation_Status(&data)))
 	{
@@ -46,28 +46,28 @@ int APPL_Get_Operation_Status(TUNER_STATE *status)
 	return r;
 }
 
-int APPL_Set_ReferenceClock(uint32_t frequency, uint8_t is_ext_clk)
+uint16_t APPL_Set_ReferenceClock(uint32_t frequency, uint8_t is_ext_clk)
 {
 	return devTEF668x_APPL_Set_ReferenceClock((uint16_t)(frequency >> 16), (uint16_t)frequency, is_ext_clk);
 }
 
-int APPL_Activate(void)
+uint16_t APPL_Activate(void)
 {
 	return devTEF668x_APPL_Activate(1);
 }
 
-int APPL_Get_Quality_Status(uint8_t fm, uint8_t *status )
+uint16_t APPL_Get_Quality_Status(uint8_t fm, uint8_t *status )
 {
 	return devTEF668x_Radio_Get_Quality_Status (fm,status);
 }
 
 //mute=1, unmute=0
-int AUDIO_Set_Mute(uint8_t mute)
+uint16_t AUDIO_Set_Mute(uint8_t mute)
 {
 		return devTEF668x_Audio_Set_Mute(mute);//AUDIO_Set_Mute mode = 0 : disable mute
 }
 //-60 -- +24 dB volume
-int AUDIO_Set_Volume(int vol)
+uint16_t AUDIO_Set_Volume(uint16_t vol)
 {
 	return devTEF668x_Audio_Set_Volume((int16_t)vol);
 }
