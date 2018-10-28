@@ -22,7 +22,9 @@ class TEF6686
     void setFrequency(uint16_t frequency);    // frequency as int, i.e. 100.00 as 10000
     uint16_t getFrequency(); // returns the current frequency
     uint16_t seekUp();      // returns the tuned frequency or 0
-    uint16_t seekDown();
+    uint16_t seekDown();    // returns the tuned frequency or 0
+    uint16_t tuneUp();      // returns the tuned frequency or 0
+    uint16_t tuneDown();    // returns the tuned frequency or 0
     void setVolume(uint16_t volume); 	//-60 -- +24 dB volume
     /*
 //	void readRDS(char* message, long timeout);
@@ -108,6 +110,7 @@ char radiotext[65];
   private:
     uint8_t init();
     uint16_t seek(uint8_t up);
+    uint16_t tune(uint8_t up);
 };
 
 #endif

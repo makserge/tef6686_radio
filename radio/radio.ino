@@ -45,14 +45,12 @@ void loop() {
       displayInfo();
     } 
     else if (ch == 'a') {
-      //channel = 1015; // Rock FM
-//      radio.setChannel(channel);
-     // displayInfo();
+      frequency = radio.tuneUp();
+      displayInfo();
     }
     else if (ch == 'b') {
-      //channel = 925; // KBCO in Boulder
-      //radio.setChannel(channel);
-      //displayInfo();
+      frequency = radio.tuneDown();
+      displayInfo();
     }
     else if (ch == 'r') {
       // The calling of readRDS and printing of rdsname really need
@@ -74,6 +72,8 @@ void loop() {
 }
 
 void displayInfo() {
-   Serial.print("Frequency:"); Serial.print(frequency); 
-   Serial.print(" Volume:"); Serial.println(volume); 
+   Serial.print("Frequency:"); 
+   Serial.print(frequency); 
+   Serial.print(" Volume:"); 
+   Serial.println(volume); 
 }

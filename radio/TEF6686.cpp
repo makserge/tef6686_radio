@@ -27,6 +27,14 @@ uint16_t TEF6686::seekDown() {
 	return seek(0);
 }
 
+uint16_t TEF6686::tuneUp() {
+  return tune(1);
+}
+
+uint16_t TEF6686::tuneDown() {
+  return tune(0);
+}
+
 void TEF6686::setVolume(uint16_t volume) {
   AUDIO_Set_Volume(volume);
 }
@@ -200,4 +208,12 @@ uint16_t TEF6686::seek(uint8_t up) {
     }
   }
   return 0;
+}
+
+uint16_t TEF6686::tune(uint8_t up) {
+  Radio_ChangeFreqOneStep(up);
+
+  Radio_SetFreq(Radio_PRESETMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
+  Radio_ClearCurrentStation();
+  return Radio_GetCurrentFreq();
 }
