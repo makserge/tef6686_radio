@@ -1,10 +1,30 @@
 #include "Arduino.h"
 #include "TEF6686.h"
 
+uint16_t readRDSState = 0;
+char postStation[9];
+uint8_t position = 0;
+char rdsData[9];
+char radioText[65];
+uint16_t rdsChanged = 0;
+
+#define CLEARBUFFER 0
+#define READUNTILEOL 1
+#define READUNTILBEGIN 2
+#define READUNTILEND 3
+#define RDS_PS 0
+#define RDS_RT 2
+#define RDS_NO 0
+#define RDS_AVAILABLE 2
+
 TEF6686::TEF6686() {
+
+}
+
+void TEF6686::setup() {  
   if (init() == 1) {
     Tuner_Init();
-    devTEF668x_APPL_Set_OperationMode(0);
+    devTEF668x_APPL_Set_OperationMode(1);
   }  
 }
 
@@ -52,111 +72,132 @@ void TEF6686::setUnMute() {
   devTEF668x_Audio_Set_Mute(0);
 }
 
-/*
-static inline void considerrdschar(char *buf, uint16_t place, char ch)
-{	
-		if (ch < 0x10 || ch > 0x7F)
-		{
-			if(ch != 0x0D)
-				return;
-		}
-		buf[place] = ch;
+char TEF6686::readRDSRadioStation(char* rs) {
+  strcpy(rs, postStation);
 }
 
-
-
-char TEF6686::CheckValidText(char* rt)
-{
-	char* endpos = strchr(rt,0x0D);
-	char* i = 0;
-	char* previousSpacePos = rt;
-	for(i=rt;i<endpos;i++)
-	{
-		if(*i == 0x20)
-		{
-			if(++previousSpacePos < i)
-			{
-				previousSpacePos = i;
-			}
-			else{
-				return false;
-			}
-		}			
-	}
-	return true;
+char TEF6686::readRDSRadioText(char* rt) { 
+  memset(postStation, 0, 9);
+  char status = 0;
+  switch(readRDSState) {
+    case CLEARBUFFER:
+      memset(rt, 0, 65);
+      memset(radioText, 0, 65);
+    
+      readRDSState++;
+      break;
+    case READUNTILEOL:
+      if (strchr(rt, 0x0D) == 0) {//When no CR(Carriage Return) is found => read RDS
+        readRDS(postStation, rt, &position);
+      }
+      else {
+        memset(rt, 0, 65);
+        memset(radioText, 0, 65);
+        readRDSState++;
+        position = 100;
+      }
+      break;
+    case READUNTILBEGIN:      
+      if (position) {
+        readRDS(postStation, rt, &position);
+      }
+      else {
+        readRDSState++;
+        position = 100;
+        memset(rt, 0, 65);
+        memset(radioText, 0, 65);
+      }
+      break;
+    case READUNTILEND:
+      if (strchr(rt, 0x0D) == 0) {
+        readRDS(postStation, rt, &position);
+      }
+      else {
+        if (checkValidText(rt)) {
+          status = 1; //Text found
+          readRDSState = 0;
+        }   
+      }
+      break;
+    default:
+      break;
+  }
+  return status;
 }
 
-uint16_t TEF6686::readRDS(char* ps, char* rt)
-{ 
-	readRegisters();
-	if(si4703_registers[STATUSRSSI] & (1<<RDSR)) {
-		if (fakerds) {
-			memset(rdsdata, 0, 8);
-			rdschanged = 1;
-		}
-		
-		fakerds = 0;
-		
-		//const uint16_t a = si4703_registers[RDSA];
-		const uint16_t b = si4703_registers[RDSB];
-		const uint16_t c = si4703_registers[RDSC];
-		const uint16_t d = si4703_registers[RDSD];
-		
-		const uint8_t groupid = (b & 0xF000) >> 12;
-		uint8_t version = b & 0x10;
-		
-		switch(groupid) {
-			case RDS_PS: {
-				const uint8_t index = (b & 0x3)*2;
-				char Dh = (d & 0xFF00) >> 8;
-				char Dl = d;
-				
-				considerrdschar(rdsdata, index, Dh);
-				considerrdschar(rdsdata, index +1, Dl);
-				
-				rdschanged = 1;
-			};
-				break;
-			case RDS_RT: {
-				rdschanged = 1;
-				uint8_t index = (b & 0xF)*4;
-				char Ch = (c & 0xFF00) >> 8;
-				char Cl = c;
-				char Dh = (d & 0xFF00) >> 8;
-				char Dl = d;
-				
-				considerrdschar(radiotext, index, Ch);
-				considerrdschar(radiotext, index +1, Cl);
-				considerrdschar(radiotext, index +2, Dh);
-				considerrdschar(radiotext, index +3, Dl);
-			};
-				break;
-		}
-	}
-	
-	const uint16_t change = rdschanged;
-	if (change) {
-		strcpy(ps, rdsdata);
-		strcpy(rt, radiotext);
-	}
-	rdschanged = 0;
-	return (change) ? ((fakerds) ? (RDS_FAKE) : (RDS_AVAILABLE)) : (RDS_NO);
+static inline void considerRDSChar(char *buf, uint16_t place, char ch) { 
+  if (ch < 0x10 || ch > 0x7F) {
+    if (ch != 0x0D) {
+        return;
+    }    
+  }
+  buf[place] = ch;
 }
 
-/*
-//Reads the current channel from READCHAN
-//Returns a number like 973 for 97.3MHz
-uint16_t TEF6686::getChannel() {
-  readRegisters();
-  uint16_t channelr = si4703_registers[READCHAN] & 0x03FF; //Mask out everything but the lower 10 bits
-  //Freq(MHz) = 0.100(in Europe) * Channel + 87.5MHz
-  //X = 0.1 * Chan + 87.5
-// use this for US (0.200) channel spacing
-	channelr *= 2;
-  channelr += 875; //98 + 875 = 973
-  return(channelr);
+char TEF6686::checkValidText(char* rt) {
+  char* endPos = strchr(rt,0x0D);
+  char* i = 0;
+  char* previousSpacePos = rt;
+  for( i = rt; i < endPos; i++) {
+    if (*i == 0x20) {
+      if (++previousSpacePos < i) {
+        previousSpacePos = i;
+      }
+      else {
+        return false;
+      }
+    }
+  }
+  return true;
 }
-*/
+
+uint16_t TEF6686::readRDS(char* ps, char* rt, uint8_t* pos) {
+  uint16_t rdsStat, rdsA, rdsB, rdsC, rdsD, rdsErr;
+  uint16_t result = devTEF668x_Radio_Get_RDS_Data(1, &rdsStat, &rdsA, &rdsB, &rdsC, &rdsD, &rdsErr);
+    
+  if (result && rdsB != 0x0 && (rdsStat & 0x8000) != 0x0) {
+    const uint8_t groupId = (rdsB & 0xF000) >> 12;
+    uint8_t version = rdsB & 0x10;
+    
+    switch(groupId) {
+      case RDS_PS: {
+        const uint8_t index = (rdsB & 0x3)*2;
+        char Dh = (rdsD & 0xFF00) >> 8;
+        char Dl = rdsD;
+        
+        considerRDSChar(rdsData, index, Dh);
+        considerRDSChar(rdsData, index + 1, Dl);
+        
+        rdsChanged = 1;
+      }
+        break;
+      case RDS_RT: {
+        uint8_t index = (rdsB & 0xF)*4;
+        *pos = index; 
+        char Ch = (rdsC & 0xFF00) >> 8;
+        char Cl = rdsC;
+        char Dh = (rdsD & 0xFF00) >> 8;
+        char Dl = rdsD;
+        
+        considerRDSChar(radioText, index, Ch);
+        considerRDSChar(radioText, index + 1, Cl);
+        considerRDSChar(radioText, index + 2, Dh);
+        considerRDSChar(radioText, index + 3, Dl);
+
+        rdsChanged = 1;
+      }
+        break;
+    }
+  }
+  
+  const int change = rdsChanged;
+  if (change) {
+    strcpy(ps, rdsData);
+    strcpy(rt, radioText);
+  }
+  rdsChanged = 0;
+  return (change) ? RDS_AVAILABLE : RDS_NO;
+}
 
 uint8_t TEF6686::init() {
   uint8_t counter = 0;

@@ -4,6 +4,11 @@
 int frequency;
 int volume;
 
+char rdsname[9];
+char rdsrt[65];
+char previousRadioText[65];
+uint8_t lastChar;
+
 TEF6686 radio;
 
 void setup() {
@@ -13,6 +18,7 @@ void setup() {
   while (!Serial);             // Leonardo: wait for serial monitor
   Serial.println("Begin");
 
+  radio.setup();
   radio.powerOn();
   radio.setFrequency(10000);
   Serial.println(radio.getFrequency());
@@ -20,6 +26,12 @@ void setup() {
 }
 
 void loop() {
+  if (radio.readRDSRadioText(rdsrt)) {
+    if (strcmp(rdsrt, previousRadioText)) {
+      Serial.println(rdsrt);          
+      strcpy(previousRadioText, rdsrt);
+    }
+  }
   if (Serial.available()) {
     char ch = Serial.read();
     if (ch == 'm') {
@@ -70,8 +82,8 @@ void loop() {
       // The calling of readRDS and printing of rdsname really need
       // to be looped to catch all of the data...
       // this will just print a snapshot of what is in the Si4703 RDS buffer...
- //     radio.readRDSRadioStation(rdsname);
-//      Serial.println(rdsname);
+      radio.readRDSRadioStation(rdsname);
+      Serial.println(rdsname);
     }
     else if (ch == 'R') {
       // The calling of readRDS and printing of rdsrt really need
@@ -79,8 +91,8 @@ void loop() {
       // this will just print a snapshot of what is in the Si4703 RDS buffer...
       //Serial.println("RDS listening - screen");
       
- //     radio.readRDS(rdsname,rdsrt,&lastChar);
-//      Serial.println(rdsrt); 
+      radio.readRDS(rdsname, rdsrt, &lastChar);
+      Serial.println(rdsrt); 
     }        
   }
 }
