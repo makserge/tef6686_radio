@@ -19,14 +19,12 @@ class TEF6686
   public:
     TEF6686();
     void powerOn();					// call in setup
-	  void setFrequency(uint16_t frequency);    // frequency as int, i.e. 100.00 as 10000
+    void setFrequency(uint16_t frequency);    // frequency as int, i.e. 100.00 as 10000
+    uint16_t getFrequency(); // returns the current frequency
     uint16_t seekUp();      // returns the tuned frequency or 0
     uint16_t seekDown();
-	 /*
-   
-	uint16_t getChannel();				// returns the tuned channel or 0
-				
-	void setVolume(uint16_t volume); 	// 0 to 15
+    void setVolume(uint16_t volume); 	//-60 -- +24 dB volume
+    /*
 //	void readRDS(char* message, long timeout);
 	char readRDSRadioText(char* rt);
 	uint16_t readRDS(char* ps, char* rt);

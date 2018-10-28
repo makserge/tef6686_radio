@@ -14,10 +14,10 @@ void setup() {
   Serial.println("Begin");
 
   //radio.powerOn();
- // radio.setVolume(1);
+  radio.setVolume(0);
   //volume=1;
   radio.setFrequency(10000);
-
+  Serial.println(radio.getFrequency());
   Serial.println("Done");
 }
 
@@ -33,16 +33,16 @@ void loop() {
       displayInfo();
     } 
     else if (ch == '+') {
-     // volume ++;
-     // if (volume >=16) volume = 15;
-     // radio.setVolume(volume);
-    //  displayInfo();
+      volume += 4;
+      if (volume >=24) volume = 24;
+      radio.setVolume(volume);
+      displayInfo();
     } 
     else if (ch == '-') {
-      //volume --;
-     // if (volume < 0) volume = 0;
-     // radio.setVolume(volume);
-     // displayInfo();
+      volume -= 4;
+      if (volume < -60) volume = -60;
+      radio.setVolume(volume);
+      displayInfo();
     } 
     else if (ch == 'a') {
       //channel = 1015; // Rock FM
