@@ -1,21 +1,3 @@
-/***********************************************************************//**
- * @file		Hero.h
- * @purpose		This example used to test NXP HERO function
- * @version		0.1
- * @date		1. Oct. 2010
- * @author		NXP BU Automotive Car Entertainment Team & VITEC ELECTRONICS(SHENZHEN) AE Team
- *---------------------------------------------------------------------
- * Software that is described herein is for illustrative purposes only
- * which provides customers with programming information regarding the
- * products. This software is supplied "AS IS" without any warranties.
- * NXP Semiconductors and VITEC Electronics assume no responsibility or liability for the
- * use of the software, convey no license or title under any patent,
- * copyright, or mask work right to the product. NXP Semiconductors and VITEC Electronics
- * reserve the right to make changes in the software without
- * notification. NXP Semiconductors and VITEC Electronics also make no representation or
- * warranty that such application will be suitable for the specified
- * use without further testing or modification.
- **********************************************************************/
 #ifndef __RADIO_FUNC_H
 #define __RADIO_FUNC_H
 
@@ -196,6 +178,16 @@ typedef struct
     uint16_t Freq[MaxStationNum];   //0-current work freq,or backup freq;
 }StationMemType;
 
+typedef enum
+{
+	eAR_TuningAction_Standby	  = 0, 
+	eAR_TuningAction_Preset 	  = 1, /*!< Tune to new program with short mute time */
+	eAR_TuningAction_Search 	  = 2, /*!< Tune to new program and stay muted */
+	eAR_TuningAction_AF_Update	  = 3, /*!< Tune to alternative frequency, store quality and tune back with inaudible mute */
+	eAR_TuningAction_Jump		  = 4, /*!< Tune to alternative frequency with short inaudible mute  */
+	eAR_TuningAction_Check		  = 5, /*!< Tune to alternative frequency and stay muted */
+	eAR_TuningAction_End		  = 7  /*!< Release the mute of a Search/Check action (frequency is ignored) */
+} AR_TuningAction_t, *pAR_TuningAction_t;
 
 /*band function*/
 extern void Radio_SetBand(uint8_t Band);
@@ -204,8 +196,6 @@ extern uint8_t Radio_IsFMBand(void);
 extern uint8_t Radio_GetCurrentBand(void);
 
 /*preset function*/
-extern void Radio_SaveCurrentFreq2Preset(uint8_t Station);
-extern void Radio_SelectPreset(uint8_t Station);
 extern void Radio_ClearCurrentStation(void);
 extern uint8_t Radio_GetCurrentStation(void);
 
@@ -215,23 +205,13 @@ extern uint32_t Radio_GetFreqStep(uint8_t band);
 extern void Radio_ChangeFreqOneStep(uint8_t UpDown);
 extern uint16_t Radio_GetCurrentFreq(void);
 
-/*parameters*/
-extern void Radio_Para_Init(void);
-
 
 /*check station */
 extern void Radio_CheckStation(void);
 extern void Radio_CheckStationInit(void);
 extern uint8_t Radio_CheckStationStatus(void);
 
-/*read/save  radio setup parameters from/ to eeprom*/
-void Radio_ReadStationRecord(void);
-void Radio_StoreCurrentBand(void);
-void Radio_StoreAll(void);
-void Radio_Save_Station(uint8_t StationNumber ,uint16_t StationFreq);
-void Radio_StoreStationRecord(uint8_t Band);
 void Radio_SetSeekSenLevel(uint8_t Lev);
-void Radio_StoreStation(uint8_t Band,uint8_t Station);
 uint8_t Radio_CheckStereo(void);
 uint16_t Radio_Get_Level(uint8_t fm);
 uint8_t Radio_Is_AF_Update_Available (void);

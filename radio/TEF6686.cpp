@@ -4,19 +4,24 @@
 TEF6686::TEF6686() {
   if (init() == 1) {
     Tuner_Init();
+    devTEF668x_APPL_Set_OperationMode(0);
   }  
 }
 
 void TEF6686::powerOn() {
-  Tuner_Update_ProgCnt(Radio_PRESETMODE);
+  devTEF668x_APPL_Set_OperationMode(0);
+}
+
+void TEF6686::powerOff() {
+  devTEF668x_APPL_Set_OperationMode(1);
 }
 
 void TEF6686::setFrequency(uint16_t frequency) {
-    Radio_SetFreq(Radio_PRESETMODE, FM1_BAND, frequency);
+  Radio_SetFreq(Radio_PRESETMODE, FM1_BAND, frequency);
 }
 
 uint16_t TEF6686::getFrequency() {
-    return Radio_GetCurrentFreq();
+  return Radio_GetCurrentFreq();
 }
 
 uint16_t TEF6686::seekUp() {
@@ -36,7 +41,15 @@ uint16_t TEF6686::tuneDown() {
 }
 
 void TEF6686::setVolume(uint16_t volume) {
-  AUDIO_Set_Volume(volume);
+  devTEF668x_Audio_Set_Volume(volume);
+}
+
+void TEF6686::setMute() {
+  devTEF668x_Audio_Set_Mute(1);
+}
+
+void TEF6686::setUnMute() {
+  devTEF668x_Audio_Set_Mute(0);
 }
 
 /*
@@ -147,20 +160,17 @@ uint16_t TEF6686::getChannel() {
 
 uint8_t TEF6686::init() {
   uint8_t counter = 0;
-  TUNER_STATE status;
+  uint8_t status;
   
   delay(5);
-  while(true)
-  {
-    if (APPL_Get_Operation_Status(&status) == 1)
-    {
+  while(true) {
+    if (devTEF668x_APPL_Get_Operation_Status(&status) == 1) {
       return 1; //Ok
     }
-    else if (++counter > 50){
+    else if (++counter > 50) {
       return 2; //Doesn't exist
     }
-    else
-    {
+    else {
       delay(5);
       return 0;  //Busy
     }

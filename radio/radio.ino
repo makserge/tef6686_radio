@@ -13,9 +13,7 @@ void setup() {
   while (!Serial);             // Leonardo: wait for serial monitor
   Serial.println("Begin");
 
-  //radio.powerOn();
-  radio.setVolume(0);
-  //volume=1;
+  radio.powerOn();
   radio.setFrequency(10000);
   Serial.println(radio.getFrequency());
   Serial.println("Done");
@@ -24,6 +22,22 @@ void setup() {
 void loop() {
   if (Serial.available()) {
     char ch = Serial.read();
+    if (ch == 'm') {
+      radio.setMute();
+      displayInfo();
+    }
+    else if (ch == 'n') {
+      radio.setUnMute();
+      displayInfo();
+    }
+    else if (ch == 'p') {
+      radio.powerOn();
+      displayInfo();
+    } 
+    else if (ch == 'o') {
+      radio.powerOff();
+      displayInfo();
+    }
     if (ch == 'u') {
       frequency = radio.seekUp();
       displayInfo();

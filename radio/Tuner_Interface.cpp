@@ -1,5 +1,5 @@
-#include "Tuner_Patch_Lithio_V102_p209.h"
 #include "TEF6686.h"
+#include "Tuner_Patch_Lithio_V102_p209.h"
 
 #define INIT_FLAG_TIMER		0xff
 #define INIT_FLAG_PATCH1	0xfe
@@ -29,7 +29,6 @@ static const unsigned char tuner_init_tab[] = {
 //wait 100ms
 2,	INIT_FLAG_TIMER,100, //(Idle state to Active state)
 
-//7,	0x20,0x01,0x01,0x00,0x01,0x27,0xD8,    // FM_Tune_To (1, 1, 10200)
 11, 0x20,0x0A,0x01,0x00,0x01,0x09,0x38,0x03,0xE8,0x03,0xE8,       // FM_Set_Bandwidth (1, 1, 2360, 1000, 1000)
 5,	0x20,0x16,0x01,0x00,0x01,             // FM_Set_ChannelEqualizer (1, 1)
 5,	0x20,0x1F,0x01,0x01,0xF4,             // FM_Set_Deemphasis (1, 500)

@@ -1,22 +1,3 @@
-/***********************************************************************//**
- * @file		Hero.c
- * @purpose		This example used to test NXP HERO function
- * @version		0.1
- * @date		1. Oct. 2010
- * @author		NXP BU Automotive Car Entertainment Team & VITEC ELECTRONICS(SHENZHEN) AE Team
- *---------------------------------------------------------------------
- * Software that is described herein is for illustrative purposes only
- * which provides customers with programming information regarding the
- * products. This software is supplied "AS IS" without any warranties.
- * NXP Semiconductors and VITEC Electronics assume no responsibility or liability for the
- * use of the software, convey no license or title under any patent,
- * copyright, or mask work right to the product. NXP Semiconductors and VITEC Electronics
- * reserve the right to make changes in the software without
- * notification. NXP Semiconductors and VITEC Electronics also make no representation or
- * warranty that such application will be suitable for the specified
- * use without further testing or modification.
- **********************************************************************/
-
 #include "TEF6686.h"
 
 /* station */
@@ -57,19 +38,6 @@ const FreqBaundDef FreqBaundConfig[MaxBandNum]={		 //0-FM1,1-FM2,2-FM3,3-LW,4-MW
     
 #endif
 
-
-/* radio default station */
-/*
-const StationMemType StationDefaultRecord[MaxStationNum]=			 //now config: MaxBandNum=6, MaxStationNum=7 
-{
-	{10000,10000,10000,10000,10000,10000,10000},     //fm1				  
-	{10000,10000,10000,10000,10000,10000,10000},		//fm2
-	{10000,10000,10000,10000,10000,10000,10000},     //fm3
-	{522,522,522,522,522,522,522},		//mw
-	{144,144,144,144,144,144,144},		//lw
-	{2300,2300,2300,2300,2300,2300,2300}		//sw
-};
-*/
 /*check station step*/
 static uint8_t CheckIfStep;
 
@@ -144,7 +112,7 @@ void Radio_SetFreq(uint8_t mode,uint8_t Band,uint16_t Freq)
 				A2Mode = eAR_TuningAction_Check;
 				break;
 		}
-		Radio_Tune_To(A2Mode,Freq);
+        devTEF668x_Radio_Tune_To(TEF665X_Is_FM_Freq(Freq), (uint16_t)A2Mode, Freq);
 	}
 }
 /*====================================================
@@ -271,145 +239,6 @@ void Radio_NextBand(void)
 	Radio_SetBand(Radio_CurrentBand);
 	Radio_CurrentFreq=StationRecord[Radio_CurrentBand].Freq[0];
 	Radio_CurrentStation=0;
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_ValidFreq
-Input:			band and freqencey pointer
-Output:			valid freqency
-Description:	 	min<= freq <= max, aligned by step
-------------------------------------------------------------------------*/
-static void Radio_ValidFreq(uint8_t band, uint16_t *pFreq)
-{
-	uint16_t step,min,max;
-
-	step = Radio_GetFreqStep(band);
-	max = FreqBaundConfig[band].MaxFreq;
-	min = FreqBaundConfig[band].MinFreq;
-
-	if((*pFreq > max)||(*pFreq < min))	//frequency baundary check
-		*pFreq = min;
-	else {  //step check
-		int num  = (*pFreq - min)/step;	//align freq by step
-		*pFreq = min + num * step;
-	}
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_ReadStationRecord
-Input:			
-Output:			
-Description:	 write  one station to eeprom
-------------------------------------------------------------------------*/
-void Radio_StoreStation(uint8_t Band,uint8_t Station)
-{
-  //  EEPROM_Write(EEPRom_StationRecordDefaultAddr + Band *sizeof(StationRecord[0]) +2*Station,
-//	(uint8_t *)(&StationRecord[Band].Freq[Station]),2);
-
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_ReadStationRecord
-Input:			
-Output:			
-Description:	 read  one station from eeprom
-------------------------------------------------------------------------*/
-void Radio_ReadStation(uint8_t Band,uint8_t Station)
-{
-//    EEPROM_Read(EEPRom_StationRecordDefaultAddr + Band *sizeof(StationRecord[0]) +2*Station,
-//	(uint8_t *)(&StationRecord[Band].Freq[Station]),2);
-
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_ReadStationRecord
-Input:			
-Output:			
-Description:	 read all station from eeprom
-------------------------------------------------------------------------*/
-void Radio_ReadStationRecord(void)
-{
-	uint16_t band,station;
-	uint16_t *pFreq;
-	
-	//EEPROM_Read(EEPRom_StationRecordDefaultAddr,(uint8_t *)(&StationRecord[0].Freq[0]),sizeof(StationRecord));
-        /* for(band=0;band<MaxBandNum;band++)
-	     for(station=0;station<MaxStationNum;station++)
-	     	Radio_ReadStation( band, station);*/
-		 
-	/*set all frequency to valid value*/
-	for(band=0;band<MaxBandNum;band++)
-	{	
-//	        EEPROM_Read(EEPRom_StationRecordDefaultAddr+ band *sizeof(StationRecord[0]),(uint8_t *)(&StationRecord[band].Freq[0]),sizeof(StationRecord[0]));
-		pFreq = &StationRecord[band].Freq[0];	
-		for(station=0;station<MaxStationNum;station++,pFreq++) 
-		{
-			Radio_ValidFreq(band,pFreq);
-		}
-	}
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_StoreStationRecord
-Input:			
-Output:			
-Description:	 store one band of station to eeprom
-------------------------------------------------------------------------*/
-void Radio_StoreStationRecord(uint8_t Band)
-{
-/*
-	EEPROM_Write(EEPRom_StationRecordDefaultAddr + Band *sizeof(StationRecord[0]) ,
-	(uint8_t *)(&StationRecord[Band].Freq[0]),
-	sizeof(StationRecord[0]));	 */
-	int i;
-	for(i=0;i<MaxStationNum;i++)
-	{
-		 Radio_StoreStation( Band, i);
-	}
-	      
-}
-
-/*-----------------------------------------------------------------------
-Function name:	Radio_ReadCurrentBand
-Input:			
-Output:			
-Description:	read station from eeprom 
-------------------------------------------------------------------------*/
-uint8_t Radio_ReadCurrentBand(void)
-{
-	uint8_t band;
-	/*read current band from eeprom*/
-//	EEPROM_Read(EEPRom_CurrentBandAddr,&band, 1);
-	/*if band not aviliable*/
-	if(band>=MaxBandNum)
-		band=FM1_BAND;
-	return band;
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_StoreCurrentBand
-Input:			
-Output:			
-Description:	 store current band  to eeprom
-------------------------------------------------------------------------*/
-void Radio_StoreCurrentBand(void)
-{
-	//EEPROM_Write(EEPRom_CurrentBandAddr,&Radio_CurrentBand,1);
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_StoreAll
-Input:			
-Output:			
-Description:	 store all the radio para,station to eeprom
-------------------------------------------------------------------------*/
-void Radio_StoreAll(void)
-{
-        uint8_t i;
-
-	/*write eeprom available flag*/
-	//i=AvailableDataFlag;
-	//EEPROM_Write(EEPRom_CheckAddr,&i,1);
-	/*store current band*/
-	Radio_StoreCurrentBand();
-	/*store station*/
-	for(i=0;i<MaxBandNum;i++)	
-	{
-	    Radio_StoreStationRecord(i);
-	}
 }
 
 /*-----------------------------------------------------------------------
@@ -611,95 +440,4 @@ uint8_t Radio_CheckStationStatus(void)
 void Radio_CheckStationInit(void)
 {
 	CheckIfStep=10;
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_SelectPreset
-Input:		Station :1~6	
-Output:		
-Description:	 select preset station
-------------------------------------------------------------------------*/
-void Radio_SelectPreset(uint8_t Station)
-{
-	if(StationRecord[Radio_CurrentBand].Freq[Station]==0) 
-	{		//no station record
-		return;
-	}
-	/*set radio freqency*/	
-	Radio_SetFreq(Radio_PRESETMODE,Radio_CurrentBand,StationRecord[Radio_CurrentBand].Freq[Station]);
-	/*reset station*/
-	StationRecord[Radio_CurrentBand].Freq[0]=StationRecord[Radio_CurrentBand].Freq[Station];
-	Radio_CurrentStation=Station;
-	Radio_CurrentFreq=StationRecord[Radio_CurrentBand].Freq[0];
-}
-/*-----------------------------------------------------------------------
-Function name:	Radio_SaveCurrentFreq2Preset
-Input:			
-Output:		
-Description:	preset station save
-------------------------------------------------------------------------*/
-void Radio_SaveCurrentFreq2Preset(uint8_t Station)
-{
-	if(StationRecord[Radio_CurrentBand].Freq[Station]==Radio_CurrentFreq)
-	{
-		return;
-	}
-	StationRecord[Radio_CurrentBand].Freq[Station]=StationRecord[Radio_CurrentBand].Freq[0];
-	Radio_CurrentStation=Station;
-	Radio_CurrentFreq=StationRecord[Radio_CurrentBand].Freq[0];
-	/*store  station*/
-	//Radio_StoreStationRecord(Radio_CurrentBand);
-	Radio_StoreStation(Radio_CurrentBand,Radio_CurrentStation);
-}
-/*-----------------------------------------------------------------------
-Function name:	
-Input:			
-Output:			
-Description:	 
-------------------------------------------------------------------------*/
-void Radio_Para_Init(void)
-{
-	uint8_t Check_eeprom;
-/*
-	EEPROM_Read(EEPRom_CheckAddr,&Check_eeprom,1);
-	//not store the config in eeprom
-	if(Check_eeprom!=AvailableDataFlag)	
-	{       
-		//load default parameters
-		memcpy(StationRecord,StationDefaultRecord,sizeof(StationRecord));
-
-		
-		//store config to eeprom
-		Radio_StoreAll();
-	}
-	else
-	{	    //load station from eeprom
-     	Radio_ReadStationRecord();		
-	} 
-  */
-	  /*init band*/
-	Radio_CurrentStation=1;
-	Radio_CurrentBand=FM1_BAND;
-	Radio_CurrentFreq=10310;//StationRecord[Radio_CurrentBand].Freq[Radio_CurrentStation];
-
-  Serial.print("Frequency: ");
-  Serial.println(Radio_CurrentFreq);
-}
-
-/*====================================================
- Function:Radio_Save_Station
- Input: 
-      Null
- OutPut:
-      Null
- Desp:
-     Save one station to mem
-=========================================================*/
-void Radio_Save_Station(uint8_t StationNumber, uint16_t StationFreq)
-{	
-	StationRecord[Radio_CurrentBand].Freq[StationNumber]=StationFreq;
-
-	//EEPROM_Write(EEPRom_StationRecordDefaultAddr + Radio_CurrentBand *sizeof(StationRecord[0]) ,
-	//	(uint8_t *)(&StationRecord[Radio_CurrentBand].Freq[StationNumber]),
-	//	2);
-
 }
