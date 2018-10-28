@@ -11,21 +11,18 @@ void TEF6686::powerOn() {
   Tuner_Update_ProgCnt(Radio_PRESETMODE);
 }
 
-void TEF6686::setChannel(uint16_t frequency) {
+void TEF6686::setFrequency(uint16_t frequency) {
     Radio_SetFreq(Radio_PRESETMODE, FM1_BAND, frequency);
 }
-/*
-uint16_t TEF6686::seekUp()
-{
-	return seek(SEEK_UP);
+
+uint16_t TEF6686::seekUp() {
+	return seek(1);
 }
-*/
-/*
-uint16_t TEF6686::seekDown()
-{
-	return seek(SEEK_DOWN);
+
+uint16_t TEF6686::seekDown() {
+	return seek(0);
 }
-*/
+
 /*
 void TEF6686::setVolume(uint16_t volume)
 {
@@ -290,4 +287,47 @@ uint8_t TEF6686::init() {
       return 0;  //Busy
     }
   }
+}
+
+uint16_t TEF6686::seek(uint8_t up) {
+  uint16_t mode = 20;
+  uint16_t startFrequency = Radio_GetCurrentFreq();
+
+  while (true) {
+    switch(mode){
+      case 20:
+        Radio_ChangeFreqOneStep(up);
+        Radio_SetFreq(Radio_SEARCHMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
+      
+        mode = 30;
+        Radio_CheckStationInit();
+        Radio_ClearCurrentStation();
+        
+        break;
+      
+      case 30:
+        delay(20);
+        Radio_CheckStation();
+        if (Radio_CheckStationStatus() >= NO_STATION) {
+          mode = 40;
+        }   
+        
+        break;
+
+      case 40:
+        if (Radio_CheckStationStatus() == NO_STATION) {        
+          mode = (startFrequency == Radio_GetCurrentFreq()) ? 50 : 20;
+        }
+        else if (Radio_CheckStationStatus() == PRESENT_STATION) {
+          mode = 50;
+        }
+        
+        break;
+      
+      case 50:
+        Radio_SetFreq(Radio_PRESETMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
+        return Radio_GetCurrentFreq();
+    }
+  }
+  return 0;
 }

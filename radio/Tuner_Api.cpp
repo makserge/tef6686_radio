@@ -71,7 +71,7 @@ const StationMemType StationDefaultRecord[MaxStationNum]=			 //now config: MaxBa
 };
 */
 /*check station step*/
-//static uint8_t CheckIfStep;
+static uint8_t CheckIfStep;
 
 /*current radio  band*/
 uint8_t Radio_CurrentBand;
@@ -526,27 +526,23 @@ void Radio_CheckStation(void)
 	unsigned char threshold;
 
 	uint8_t usn, wam;
-	int16_t offset;
+	uint16_t offset;
 	
 	uint8_t fm = (Radio_CurrentBand<=FM3_BAND);
-	/*
 	switch(CheckIfStep)
 	{
 		case 10://start check init
 			CheckIfStep = 20;
 			break;
 
-		case 20://Check QRS(quality of read status)	 
-			TimerSet(&Radio_Check_Timer,fm? RADIO_FM_LEVEL_AVAILABLE_TIME : RADIO_AM_LEVEL_AVAILABLE_TIME);	//power supply voltage settling + 5 ms.
+		case 20://Check QRS(quality of read status)	
+            delay(fm ? RADIO_FM_LEVEL_AVAILABLE_TIME : RADIO_AM_LEVEL_AVAILABLE_TIME);        
 			CheckIfStep=30;  //Set to next step
 			break;   
 
 		case 30://check level , AM=3 times,FM=2 times
 		case 31:
 		case 32:
-			if(!TimerHasExpired(&Radio_Check_Timer))
-				break;
-			
 			threshold = fm ? ((SeekSenLevel ==HIGH) ? FM_SCAN_LEVEL_HI : FM_SCAN_LEVEL) 
 						: ((SeekSenLevel ==HIGH) ? AM_SCAN_LEVEL_HI : AM_SCAN_LEVEL);
 
@@ -559,17 +555,14 @@ void Radio_CheckStation(void)
 				if(++CheckIfStep > threshold)
 				{
 					CheckIfStep=40;
-					TimerSet(&Radio_Check_Timer,40);//set for usn... available
+					delay(40);//set for usn... available
 				}
 				else
-					TimerSet(&Radio_Check_Timer,RADIO_CHECK_INTERVAL);//set for the next time
+					delay(RADIO_CHECK_INTERVAL);//set for the next time
 			}
 			break;
 			
 		case 40:
-			if(!TimerHasExpired(&Radio_Check_Timer))//wait usn... available
-				break;
-			
 			CheckIfStep = NO_STATION;
 
 			if(1 == Radio_Get_Data(fm,&usn,&wam,&offset))
@@ -591,7 +584,6 @@ void Radio_CheckStation(void)
 		CheckIfStep = NO_STATION;
 		break;        
 	}
- */
 }
 /*--------------------------------------------------------------------
  Function:Radio_CheckStationStatus
@@ -602,10 +594,10 @@ void Radio_CheckStation(void)
  Desp:
      get check station step
 ---------------------------------------------------------------------*/
-//uint8_t Radio_CheckStationStatus(void)
-//{
-//	return CheckIfStep;
-//}
+uint8_t Radio_CheckStationStatus(void)
+{
+	return CheckIfStep;
+}
 
 /*--------------------------------------------------------------------
  Function:Radio_CheckStationInit
@@ -618,7 +610,7 @@ void Radio_CheckStation(void)
 ---------------------------------------------------------------------*/
 void Radio_CheckStationInit(void)
 {
-//	CheckIfStep=10;
+	CheckIfStep=10;
 }
 /*-----------------------------------------------------------------------
 Function name:	Radio_SelectPreset
