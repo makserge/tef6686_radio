@@ -21,11 +21,28 @@ TEF6686::TEF6686() {
 
 }
 
-void TEF6686::setup() {  
-  if (init() == 1) {
-    Tuner_Init();
-    devTEF668x_APPL_Set_OperationMode(1);
-  }  
+uint8_t TEF6686::init() {
+  uint8_t result;
+  uint8_t counter = 0;
+  uint8_t status;
+  
+  delay(5);
+  while (true) {
+    result = devTEF668x_APPL_Get_Operation_Status(&status);
+    Serial.println(result);
+    if (result == 1) {
+      Tuner_Init();
+      devTEF668x_APPL_Set_OperationMode(1);
+      return 1; //Ok
+    }
+    else if (++counter > 50) {
+      return 2; //Doesn't exist
+    }
+    else {
+      delay(5);
+      return 0;  //Busy
+    }
+  } 
 }
 
 void TEF6686::powerOn() {
@@ -197,25 +214,6 @@ uint16_t TEF6686::readRDS(char* ps, char* rt, uint8_t* pos) {
   }
   rdsChanged = 0;
   return (change) ? RDS_AVAILABLE : RDS_NO;
-}
-
-uint8_t TEF6686::init() {
-  uint8_t counter = 0;
-  uint8_t status;
-  
-  delay(5);
-  while(true) {
-    if (devTEF668x_APPL_Get_Operation_Status(&status) == 1) {
-      return 1; //Ok
-    }
-    else if (++counter > 50) {
-      return 2; //Doesn't exist
-    }
-    else {
-      delay(5);
-      return 0;  //Busy
-    }
-  }
 }
 
 uint16_t TEF6686::seek(uint8_t up) {
