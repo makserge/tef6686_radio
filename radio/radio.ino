@@ -11,14 +11,20 @@ uint8_t lastChar;
 
 TEF6686 radio;
 
+TwoWire WIRE2 (2, I2C_FAST_MODE);
+#define Wire WIRE2
+
 void setup() {
-  Wire.begin(D1, D2);
+  //Wire.begin(D1, D2);
+  delay(10000);
+  Wire.begin();
   delay(1000);
   Serial.begin(115200);
-  while (!Serial);             // Leonardo: wait for serial monitor
+  //while (!Serial);             // Leonardo: wait for serial monitor
   Serial.println("Begin");
 
-  radio.setup();
+  radio.init();
+  Serial.println("???");
   radio.powerOn();
   radio.setFrequency(10000);
   Serial.println(radio.getFrequency());
