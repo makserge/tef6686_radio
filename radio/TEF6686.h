@@ -16,7 +16,7 @@ class TEF6686
 {
   public:
     TEF6686();
-    void setup();
+    uint8_t init();
     void powerOn();					// call in setup
     void powerOff();				
     void setFrequency(uint16_t frequency);    // frequency as int, i.e. 100.00 as 10000
@@ -33,7 +33,6 @@ class TEF6686
     char readRDSRadioStation(char* rs);
      
   private:
-    uint8_t init();
     uint16_t seek(uint8_t up);
     uint16_t tune(uint8_t up);
     char checkValidText(char* rt);
