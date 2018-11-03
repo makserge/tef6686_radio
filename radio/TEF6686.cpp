@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "TEF6686.h"
 
 uint16_t readRDSState = 0;
@@ -25,14 +24,15 @@ uint8_t TEF6686::init() {
   uint8_t result;
   uint8_t counter = 0;
   uint8_t status;
+
+  Tuner_I2C_Init();
   
   delay(5);
   while (true) {
     result = devTEF668x_APPL_Get_Operation_Status(&status);
-    Serial.println(result);
     if (result == 1) {
       Tuner_Init();
-      devTEF668x_APPL_Set_OperationMode(1);
+      powerOff();
       return 1; //Ok
     }
     else if (++counter > 50) {

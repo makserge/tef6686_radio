@@ -1,19 +1,16 @@
 #ifndef TEF6686_h
 #define TEF6686_h
 
-#include <Arduino.h>
-
 #include <Wire.h>
-#include <stdint.h>
 
 #include "Tuner_Api.h"
 #include "Tuner_Drv_Lithio.h"
 #include "Tuner_Interface.h"
 
+#define I2C_PORT 2
 #define I2C_ADDR 0x64
 
-class TEF6686
-{
+class TEF6686 {
   public:
     TEF6686();
     uint8_t init();

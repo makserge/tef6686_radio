@@ -1,6 +1,8 @@
 #include "TEF6686.h"
 #include "Tuner_Patch_Lithio_V102_p209.h"
 
+TwoWire Wire2 (I2C_PORT, I2C_FAST_MODE);
+
 #define INIT_FLAG_TIMER		0xff
 #define INIT_FLAG_PATCH1	0xfe
 #define INIT_FLAG_PATCH2	0xfd
@@ -103,32 +105,37 @@ static const unsigned char tuner_init_tab[] = {
 unsigned char Tuner_WriteBuffer(unsigned char *buf, uint16_t len)
 {
   uint16_t i;
-  unsigned char r;
- // Serial.println("Send to I2C: ");
-  Wire.beginTransmission(I2C_ADDR);
+  uint8_t r;
+  //Serial.println(I2C_ADDR, HEX);
+  //Serial.println("Send to I2C: ");
+  Wire2.beginTransmission(I2C_ADDR);
+  //Serial.println("beginTransmission");
   for (i = 0; i < len; i++) {
-    Wire.write(buf[i]);
-  //  Serial.print(buf[i], HEX);
-   // Serial.print(" ");
+    Wire2.write(buf[i]);
+    //Serial.print(buf[i], HEX);
+    //Serial.print(" ");
   }
-  r = (Wire.endTransmission() == 0) ? 1 : 0;
- // Serial.println();
+  //Serial.println("Wire.write");
+  r = Wire2.endTransmission();
+  //Serial.println("Wire.endTransmission:");
+  //Serial.print(r);
+  //Serial.println();
   delay(1);
-  return r;
+  return (r == 0) ? 1 : 0;
 }
 
 unsigned char Tuner_ReadBuffer(unsigned char *buf, uint16_t len)
 {
   uint16_t i;
   //Serial.println("\nRead from I2C: ");
-  Wire.requestFrom(I2C_ADDR, len);
-  if (Wire.available() == len) {
+  Wire2.requestFrom(I2C_ADDR, len);
+  if (Wire2.available() == len) {
     for (i = 0; i < len; i++) {
-      buf[i] = Wire.read();
-  //    Serial.print(buf[i], HEX);
-  //    Serial.print(" ");
+      buf[i] = Wire2.read();
+      //Serial.print(buf[i], HEX);
+      //Serial.print(" ");
     }
-  //  Serial.println();
+    //Serial.println();
     return 1;
   }
   return 0;
@@ -196,10 +203,12 @@ static uint16_t Tuner_Table_Write(const unsigned char * tab)
 		return Tuner_WriteBuffer((unsigned char *)&tab[1], tab[0]);
 }
 
+void Tuner_I2C_Init() {
+  Wire2.begin();
+}
 
-//return 1 = sucess
-uint16_t Tuner_Init(void)
-{
+//return 1 = sucsess
+uint16_t Tuner_Init(void) {
 	uint16_t i;
 	uint16_t r;
 	const unsigned char *p = tuner_init_tab;
