@@ -140,6 +140,10 @@ uint8_t TEF6686::readRDS() {
   uint16_t rdsStat, rdsA, rdsB, rdsC, rdsD, rdsErr;
   uint16_t result = devTEF668x_Radio_Get_RDS_Data(1, &rdsStat, &rdsA, &rdsB, &rdsC, &rdsD, &rdsErr);
 
+  if (!(result && (rdsB != 0x0) && ((rdsStat & 0x8000) != 0x0) && ((rdsErr & 0x0a00) == 0x0))) {
+    return isReady; 
+  }
+
   rdsBHigh = (uint8_t)(rdsB >> 8);
   rdsBLow = (uint8_t)rdsB;
   rdsCHigh = (uint8_t)(rdsC >> 8);
@@ -236,7 +240,6 @@ uint8_t TEF6686::readRDS() {
     rdsAb = ab;
     rdsFormatString(rdsRadioText, 64);
   }
-  delay(5);
   return isReady; 
 }
  
