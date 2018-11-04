@@ -97,6 +97,14 @@ uint16_t TEF6686::getFrequency() {
   return Radio_GetCurrentFreq();
 }
 
+uint16_t TEF6686::getLevel() {
+  return Radio_Get_Level(1);
+}
+
+uint8_t TEF6686::getStereoStatus() {
+  return Radio_CheckStereo();
+}
+
 uint16_t TEF6686::seekUp() {
 	return seek(1);
 }

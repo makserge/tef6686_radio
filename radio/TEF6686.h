@@ -25,6 +25,8 @@ class TEF6686 {
     void powerOff();				
     void setFrequency(uint16_t frequency);    // frequency as int, i.e. 100.00 as 10000
     uint16_t getFrequency(); // returns the current frequency
+    uint16_t getLevel();
+    uint8_t getStereoStatus();
     uint16_t seekUp();      // returns the tuned frequency or 0
     uint16_t seekDown();    // returns the tuned frequency or 0
     uint16_t tuneUp();      // returns the tuned frequency or 0

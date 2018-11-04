@@ -9,16 +9,16 @@ StationMemType StationRecord[MaxStationNum];
 #if (AreaSelect==Radio_CHN)   /*China */          
 const Radio_AreaConfigDef Radio_AreaConfig={
     //FM_MaxFreq  FM_MinFreq  AM_MaxFreq  AM_MinFreq  FM_AutoSeekStep/k  FM_ManualSeekStep/k  AM_AutoSeekStep/k  AM_ManualSeekStep/k
-    10800,        8750,      1620,       522,         FM_Step_100k,        FM_Step_100k,                 9,                  9};
+    10800,        6500,      1620,       522,         FM_Step_100k,        FM_Step_100k,                 9,                  9};
 	
 const FreqBaundDef FreqBaundConfig[MaxBandNum]={		
    /*0-FM1,1-FM2,2-FM3,3-LW,4-MW,5-SW*/
-    {8750,10800},{8750,10800},{8750,10800},{522,1710},{144,288},{2300,27000}};    
+    {6500,10800},{6500,10800},{6500,10800},{522,1710},{144,288},{2300,27000}};    
     
 #elif (AreaSelect==Radio_EUR)  /*Europe */   	                        
 const Radio_AreaConfigDef Radio_AreaConfig={
 //FM_MaxFreq  FM_MinFreq  AM_MaxFreq  AM_MinFreq  FM_AutoSeekStep/k  FM_ManualSeekStep/k  AM_AutoSeekStep/k  AM_ManualSeekStep/k
-10800,        8750,      1602,       531,         FM_Step_100k,        FM_Step_100k,               9,                  9};
+10800,        6500,      1602,       531,         FM_Step_100k,        FM_Step_100k,               9,                  9};
 const FreqBaundDef FreqBaundConfig[MaxBandNum]={		 //0-FM1,1-FM2,2-FM3,3-LW,4-MW,5-SW
     {6500,10800},{6500,10800},{6500,10800},{144,288},{522,1710},{2300,27000}};    // 
     
@@ -249,13 +249,14 @@ Description:	 check stereo indicator
 ------------------------------------------------------------------------*/
 uint8_t Radio_CheckStereo(void)
 {
-	uint16_t Status;
+	uint16_t status;
 	uint8_t stereo = 0;
 
 	if(Is_Radio_Atomic2||Is_Radio_Lithio)
 	{
-		//if(1==devTEF668x_Radio_Get_Signal_Status(1,&Status))
-			//stereo = ( Status & bit15)? 1 : 0;
+		if (1==devTEF668x_Radio_Get_Signal_Status(1, &status)) {
+			stereo = ((status >> 15) & 1) ? 1 : 0;
+		}  
 	}
 
 	return stereo;
@@ -285,8 +286,6 @@ uint8_t Radio_Is_RDAV_Available (void)
 	
 	return 0;
 }
-
-
 
 //level detector result
 //output: -200 ... 1200 (0.1 * dBuV) = -20 ... 120 dBuV RF input level

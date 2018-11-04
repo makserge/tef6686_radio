@@ -19,7 +19,7 @@ void setup() {
   Serial.println("Begin");
   radio.init();
   radio.powerOn();
-  radio.setFrequency(9520);
+  radio.setFrequency(10700);
   frequency = radio.getFrequency();
   displayInfo();  
 }
@@ -120,8 +120,13 @@ bool strcmp(char* str1, char* str2, int length) {
 }
 
 void displayInfo() {
+   delay(10);
    Serial.print("Frequency:"); 
    Serial.print(frequency); 
    Serial.print(" Volume:"); 
-   Serial.println(volume); 
+   Serial.println(volume);
+   Serial.print("Level:"); 
+   Serial.println(radio.getLevel() / 10);
+   Serial.print("Stereo:"); 
+   Serial.println(radio.getStereoStatus());
 }
