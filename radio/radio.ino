@@ -3,12 +3,13 @@
 int frequency;
 int volume;
 
-char rdsname[9];
-char rdsrt[65];
-char previousRadioText[65];
-uint8_t lastChar;
+bool ps_rdy;  
+char pty_prev[17]="                ";
+char ps_prev[9];
+char radio_text_prev[16];
 
 TEF6686 radio;
+Station tuned;
 
 void setup() {
   delay(1000);
@@ -17,18 +18,13 @@ void setup() {
   Serial.println("Begin");
   radio.init();
   radio.powerOn();
-  radio.setFrequency(10000);
+  radio.setFrequency(10360);
   frequency = radio.getFrequency();
-  displayInfo();
+  displayInfo();  
 }
 
 void loop() {
-  if (radio.readRDSRadioText(rdsrt)) {
-    if (strcmp(rdsrt, previousRadioText)) {
-      Serial.println(rdsrt);          
-      strcpy(previousRadioText, rdsrt);
-    }
-  }
+  readRds();
   if (Serial.available()) {
     char ch = Serial.read();
     if (ch == 'm') {
@@ -75,22 +71,56 @@ void loop() {
       frequency = radio.tuneDown();
       displayInfo();
     }
-    else if (ch == 'r') {
-      // The calling of readRDS and printing of rdsname really need
-      // to be looped to catch all of the data...
-      // this will just print a snapshot of what is in the Si4703 RDS buffer...
-      radio.readRDSRadioStation(rdsname);
-      Serial.println(rdsname);
-    }
-    else if (ch == 'R') {
-      // The calling of readRDS and printing of rdsrt really need
-      // to be looped to catch all of the data...
-      // this will just print a snapshot of what is in the Si4703 RDS buffer...
-      //Serial.println("RDS listening - screen");
-      
-      radio.readRDS(rdsname, rdsrt, &lastChar);
-      Serial.println(rdsrt); 
-    }        
+  }
+}
+
+void readRds() {
+  ps_rdy = radio.readRDS(); 
+  radio.getRDS(&tuned);
+
+  //showPTY();
+  showPS();
+  showRadioText(); 
+}
+
+void showPTY() {
+  if(!strcmp(tuned.programType,pty_prev,16)){ 
+    Serial.print(tuned.programType);
+    strcpy(pty_prev,tuned.programType);
+    Serial.println();  
+  }  
+}
+
+void showPS(){
+        if (strlen(tuned.programService) == 8){
+            if(ps_rdy){      
+                if(!strcmp(tuned.programService,ps_prev,8)){         
+                  Serial.print("-=[ ");
+                  Serial.print(tuned.programService); 
+                  Serial.print(" ]=-");     
+                        strcpy(ps_prev,tuned.programService);
+                  Serial.println();      
+          }  
+            }    
+        }
+}
+
+bool strcmp(char* str1, char* str2, int length){
+  bool same=true;
+  for(int i=0;i<length;i++){
+    if(str1[i]!=str2[i]){
+      same=false;
+      break;
+    }    
+  }  
+  return same;
+}
+
+void showRadioText(){
+  if(!strcmp(tuned.radioText,radio_text_prev,16)){ 
+    Serial.print(tuned.radioText);
+    strcpy(radio_text_prev,tuned.radioText);
+    Serial.println();  
   }
 }
 
