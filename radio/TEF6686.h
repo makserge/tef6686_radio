@@ -10,14 +10,12 @@
 #define I2C_PORT 2
 #define I2C_ADDR 0x64
 
-typedef struct Station {
-  char callSign[5];
+typedef struct RdsInfo {
   char programType[17]; 
   char programService[9];
   char radioText[65];
   bool newRadioText;
 };
-
 
 class TEF6686 {
   public:
@@ -34,26 +32,19 @@ class TEF6686 {
     void setVolume(uint16_t volume); 	//-60 -- +24 dB volume
     void setMute();
     void setUnMute();
-    bool readRDS(void);
-    void getRDS(Station * tunedStation);
+    uint8_t readRDS();
+    void getRDS(RdsInfo* rdsInfo);
      
   private:
     uint16_t seek(uint8_t up);
     uint16_t tune(uint8_t up);
-    void ptystr(byte);
-    void printable_str(char * str, int length);
+    void rdsFormatString(char* str, uint16_t length);
 
-    char _disp[65];
-    char _ps[9];
-    char _csign[5];
-    bool _ab;
-    char _pty[17];
-    bool _newRadioText;
-    byte _year;
-    byte _month;        //Contains the year
-    byte _day;          //Contains the day
-    byte _hour;         //Contains the hour
-    byte _minute;
+    char rdsRadioText[65];
+    char rdsProgramService[9];
+    uint8_t rdsAb;
+    char rdsProgramType[17];
+    uint8_t isRdsNewRadioText;
 };
 
 #endif
