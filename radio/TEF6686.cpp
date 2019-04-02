@@ -1,6 +1,6 @@
 #include "TEF6686.h"
 
-char* ptyLUT[51] = { 
+const char* ptyLUT[51] = { 
       "      None      ",
       "      News      ",
       "  Information   ",

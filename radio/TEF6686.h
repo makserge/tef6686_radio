@@ -10,7 +10,7 @@
 #define I2C_PORT 2
 #define I2C_ADDR 0x64
 
-typedef struct RdsInfo {
+struct RdsInfo {
   char programType[17]; 
   char programService[9];
   char radioText[65];
