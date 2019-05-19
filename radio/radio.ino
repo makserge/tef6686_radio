@@ -9,6 +9,9 @@ char programTypePrevious[17] = "                ";
 char programServicePrevious[9];
 char radioTextPrevious[65];
 
+boolean isFmSeekMode;
+boolean isFmSeekUp;
+
 TEF6686 radio;
 RdsInfo rdsInfo;
 
@@ -26,6 +29,7 @@ void setup() {
 
 void loop() {
   readRds();
+  showFmSeek();
   if (Serial.available()) {
     char ch = Serial.read();
     if (ch == 'm') {
@@ -44,14 +48,24 @@ void loop() {
       radio.powerOff();
       displayInfo();
     }
-    if (ch == 'u') {
+    else if (ch == 'u') {
       frequency = radio.seekUp();
       displayInfo();
     } 
     else if (ch == 'd') {
       frequency = radio.seekDown();
       displayInfo();
+    }
+    else if (ch == 'c') {
+      Serial.println("Seeking up");
+      isFmSeekMode = true;
+      isFmSeekUp = true;
     } 
+    else if (ch == 'e') {
+      Serial.println("Seeking down");
+      isFmSeekMode = true;
+      isFmSeekUp = false;
+    }
     else if (ch == '+') {
       volume += 4;
       if (volume >= 24) volume = 24;
@@ -129,4 +143,15 @@ void displayInfo() {
    Serial.println(radio.getLevel() / 10);
    Serial.print("Stereo:"); 
    Serial.println(radio.getStereoStatus());
+}
+
+void showFmSeek() {
+  if (isFmSeekMode) {
+    if (radio.seekSync(isFmSeekUp)) {
+      isFmSeekMode = false;
+      Serial.println("Seek stopped");
+      frequency = radio.getFrequency();
+      displayInfo();
+    }
+  }
 }

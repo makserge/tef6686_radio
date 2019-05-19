@@ -29,6 +29,7 @@ class TEF6686 {
     uint8_t getStereoStatus();
     uint16_t seekUp();      // returns the tuned frequency or 0
     uint16_t seekDown();    // returns the tuned frequency or 0
+	uint16_t seekSync(uint8_t up); // returns 1 if seek was completed and 0 if seek in progress
     uint16_t tuneUp();      // returns the tuned frequency or 0
     uint16_t tuneDown();    // returns the tuned frequency or 0
     void setVolume(uint16_t volume); 	//-60 -- +24 dB volume
@@ -47,6 +48,9 @@ class TEF6686 {
     uint8_t rdsAb;
     char rdsProgramType[17];
     uint8_t isRdsNewRadioText;
+	
+	uint16_t seekMode;
+	uint16_t seekStartFrequency;
 };
 
 #endif

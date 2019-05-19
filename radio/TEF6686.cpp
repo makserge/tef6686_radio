@@ -300,6 +300,49 @@ uint16_t TEF6686::seek(uint8_t up) {
   return 0;
 }
 
+uint16_t TEF6686::seekSync(uint8_t up) {
+  if (seekMode == 0) {	
+	seekMode = 20;
+	seekStartFrequency = Radio_GetCurrentFreq();
+  }
+  switch(seekMode) {
+    case 20:
+	  Radio_ChangeFreqOneStep(up);
+      Radio_SetFreq(Radio_SEARCHMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
+      
+      seekMode = 30;
+      Radio_CheckStationInit();
+      Radio_ClearCurrentStation();
+        
+      return 0;
+      
+    case 30:
+      delay(20);
+      Radio_CheckStation();
+      if (Radio_CheckStationStatus() >= NO_STATION) {
+        seekMode = 40;
+      }   
+        
+      return 0;
+
+    case 40:
+      if (Radio_CheckStationStatus() == NO_STATION) {        
+        seekMode = (seekStartFrequency == Radio_GetCurrentFreq()) ? 50 : 20;
+      }
+      else if (Radio_CheckStationStatus() == PRESENT_STATION) {
+        seekMode = 50;
+      }
+        
+      return 0;
+      
+    case 50:
+	  seekMode = 0;
+      Radio_SetFreq(Radio_PRESETMODE, Radio_GetCurrentBand(), Radio_GetCurrentFreq());
+      return 1;  
+  }
+  return 0;
+}	
+
 uint16_t TEF6686::tune(uint8_t up) {
   Radio_ChangeFreqOneStep(up);
 
